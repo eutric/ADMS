@@ -2,14 +2,14 @@
 clear all
 close all
 clc
-L=1200;  % mm
-h=8;
-b=40;
-rho=2700e-9; %kg/mm^3
-E=68; %GPa
+L=1200e-3;  % m
+h=8e-3;
+b=40e-3;
+rho=2700; %kg/m^3
+E=68e9; %Pa
 m=rho*h*b; % kg/mm
 J=h^3*b/12; % mm^4;
-f_vect=linspace(0,1,10000);
+f_vect=linspace(0,5,10000);
 om_vect=2*pi.*f_vect;
 g=@(om)(m*om.^2/E/J).^(1/4);
 
