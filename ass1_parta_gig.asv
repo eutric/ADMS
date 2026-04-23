@@ -34,7 +34,6 @@ end
 semilogy(om_vect(i_nat),abs(dets(i_nat)),'or')
 %natural frequencies
 %computing mode shapes
-figure
 xx=linspace(0,1200,1000);
 for i =1:length(i_nat)
     mode(i).i_nat=i_nat(i);
@@ -43,11 +42,6 @@ for i =1:length(i_nat)
     mode(i).HH=H(mode(i).G);
     mode(i).f=mode(i).OM/2/pi;
     mode(i).X=[1;-inv(mode(i).HH(2:end,2:end))*mode(i).HH(2:end,1)];
-    mode(i).phi=@(x)mode(i).X(1)*cos(mode(i).G.*x) + mode(i).X(2)*sin(mode(i).G.*x)+ mode(i).X(3)*cosh(mode(i).G.*x) + mode(i).X(4)*sinh(mode(i).G.*x);
-    plot(xx,mode(i).phi(xx))
-    hold on
-
+    mode(i).phi=@(x)[cos(mode(i).G.*x) , sin(mode(i).G.*x), cosh(mode(i).G.*x), sinh(mode(i).G.*x)] * mode(i).X;
+    
 end
-grid on
-
-
