@@ -2,14 +2,14 @@
 clear all
 close all
 clc
-L=1200;  % mm
-h=8;
-b=40;
-rho=2700e-9; %kg/mm^3
-E=68000; %MPa
+L=1.200;  % mm
+h=0.008;
+b=0.040;
+rho=2700; %kg/mm^3
+E=68e9; %MPa
 m=rho*h*b; % kg/mm
 J=h^3*b/12; % mm^4;
-f_vect=linspace(0,10,10000);
+f_vect=linspace(0,100,10000);
 om_vect=2*pi.*f_vect;
 g=@(om)(m*om.^2/E/J).^(1/4);
 
@@ -35,7 +35,7 @@ semilogy(om_vect(i_nat),abs(dets(i_nat)),'or')
 %natural frequencies
 %computing mode shapes
 figure
-xx=linspace(0,1200,1000);
+xx=linspace(0,1.200,1000);
 for i =1:length(i_nat)
     mode(i).i_nat=i_nat(i);
     mode(i).OM=om_vect(i_nat(i));
