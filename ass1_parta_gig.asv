@@ -9,7 +9,7 @@ rho=2700; %kg/mm^3
 E=68e9; %MPa
 m=rho*h*b; % kg/mm
 J=h^3*b/12; % mm^4;
-f_vect=linspace(0,200,10000);
+f_vect=linspace(0,500,10000);
 om_vect=2*pi.*f_vect;
 g=@(om)(m*om.^2/E/J).^(1/4);
 
@@ -52,24 +52,18 @@ end
 grid on
 %% compute FRF
 %assume 
-x_in=1.2;
+x_in=1;
 x_out=0.2;
 csi=0.01;
 for i=1:length(mode) 
-    mode(i).mi=trapz(xx,mode(i).phi(xx).^2*m);
-    mode(i).G_in_out=@(OM)(mode(i).phi(x_in)*mode(i).phi(x_out))./mode(i).mi./(-OM.^2+1i*OM*2*csi*mode(i).OM+mode(i).OM.^2);
+    mode(i).mi=trapz(xx,mode(i).phi(xx))
 end
-G=@(OM)0*OM;
-for i=1:length(mode)
-    G=@(OM)G(OM)+mode(i).G_in_out(OM);
-end
-figure
-subplot(2,1,1)
-semilogy(f_vect,abs(G(om_vect)),LineWidth=2)
-grid on
-subplot(2,1,2)
-plot(f_vect,angle(G(om_vect)),LineWidth=2)
-grid on
+
+
+
+
+
+
 
 
 
