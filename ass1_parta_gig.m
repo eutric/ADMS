@@ -6,10 +6,10 @@ L=1200;  % mm
 h=8;
 b=40;
 rho=2700e-9; %kg/mm^3
-E=68; %GPa
+E=68000; %MPa
 m=rho*h*b; % kg/mm
 J=h^3*b/12; % mm^4;
-f_vect=linspace(0,1,10000);
+f_vect=linspace(0,10,10000);
 om_vect=2*pi.*f_vect;
 g=@(om)(m*om.^2/E/J).^(1/4);
 
