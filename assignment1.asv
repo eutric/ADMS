@@ -180,7 +180,7 @@ err =@(x) [G_exp(mode_loc_exp(1)-f_res/f_max * range:mode_loc_exp(1)+f_res/f_max
 
 
 x01 = [mode_loc_exp(1,1),];
-tol = 1e-4;
+tol = 1e-5
 k = find(abs(abs(G_exp(:,1)) - mode_ampl(1,1)/sqrt(2)) < tol);
 
 
