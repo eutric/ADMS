@@ -52,10 +52,10 @@ end
 grid on
 %% compute FRF
 %assume 
-x_in=1.2;
-x_out=0.2;
+x_in=.2; % m
+x_out=1.2;
 
-[G,mode]=FRF_num(mode,x_in,x_out,beam);
+[G,mode]=FRF_num(mode,x_in,x_out,beam,-1); % L'ultimo parametro è la fase/contro fase di spostamento e forza, la prof li ha di segno opposto
 figure
 subplot(2,1,1)
 semilogy(f_vect,abs(G(om_vect)),LineWidth=2)
@@ -63,7 +63,7 @@ grid on
 subplot(2,1,2)
 plot(f_vect,angle(G(om_vect)),LineWidth=2)
 grid on
-
+    
 %% test FRF in other point, compute FRF_num
 x_out_vect=[0.2,0.5,0.7];
 [FRF1,mode1]=FRF_num(mode,x_in,x_out_vect(1),beam);
@@ -73,16 +73,23 @@ FRF_list={FRF1,FRF2,FRF3};
 figure
 subplot(2,3,1)
 semilogy(f_vect,abs(FRF1(om_vect)),LineWidth=2);
+grid
 subplot(2,3,2)
 semilogy(f_vect,abs(FRF2(om_vect)),LineWidth=2);
+grid
 subplot(2,3,3)
 semilogy(f_vect,abs(FRF3(om_vect)),LineWidth=2);
+grid
 subplot(2,3,4)
-semilogy(f_vect,angle(FRF1(om_vect)),LineWidth=2);
+plot(f_vect,angle(FRF1(om_vect)),LineWidth=2);
+grid
 subplot(2,3,5)
-semilogy(f_vect,angle(FRF2(om_vect)),LineWidth=2);
+plot(f_vect,angle(FRF2(om_vect)),LineWidth=2);
+grid
+
 subplot(2,3,6)
-semilogy(f_vect,angle(FRF3(om_vect)),LineWidth=2);
+plot(f_vect,angle(FRF3(om_vect)),LineWidth=2);
+grid
 
 %% work backwords compute parameters starting from sperimental FRFs
 %assume aproximation around mode 1
@@ -94,16 +101,16 @@ Gnum=[];
 %try imposing function of a vector x where
 %x=[omi,csii,A1,A2,A3,Rl1,Rl2,Rl3,Rh1,Rh2,Rh3]
 %    1   2   3  4  5   6   7   8   9   10  11
-EPS=@(x)0*x;
-for i=1:100
-    for r=1:3
-        Gnum{i,r}=@(x)x(2+r)./(-om_min_max(i).^2 + 1i*2.*x(2).*x(1) + x(1).^2) + ;
-        eps{i,r}=@(x)real(FRF_list{r}(i)-Gnum{i,r}(x)).^2+imag(FRF_list{r}(i)-Gnum{i,r}(x)).^2;
-        EPS=@(x)EPS(x)+eps{i,r}(x);
-    end
-end
-x0=ones(1,11);
-
+% EPS=@(x)0*x;
+% for i=1:100
+%     for r=1:3
+%         Gnum{i,r}=@(x)x(2+r)./(-om_min_max(i).^2 + 1i*2.*x(2).*x(1) + x(1).^2) + ;
+%         eps{i,r}=@(x)real(FRF_list{r}(i)-Gnum{i,r}(x)).^2+imag(FRF_list{r}(i)-Gnum{i,r}(x)).^2;
+%         EPS=@(x)EPS(x)+eps{i,r}(x);
+%     end
+% end
+% x0=ones(1,11);
+% 
 
 
 
