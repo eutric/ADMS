@@ -109,7 +109,7 @@ for i=1:100
         % EPS=@(x)EPS(x)+eps{i,r}(x);
     end
 end
-EPS=@(x)sum(sum(cell2mat(eps(x))));
+EPS=@(x)sum(sum(cell2mat(eps)));
 x0=ones(1,11);
 
 
