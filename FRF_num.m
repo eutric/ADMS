@@ -1,14 +1,16 @@
-function [G,mode] = FRF_num(mode,x_in,x_out,beam)
+function [G,mode] = FRF_num(mode,x_in,x_out,beam,F_sgn)
+if nargin == 4
+    F_sgn = 1;
+end
 csi=0.01;
 xx=linspace(0,beam.L,1000);
-mode=mode;
-for i=1:length(mode) 
-    mode(i).mi=trapz(xx,mode(i).phi(xx).^2*beam.m);
-    mode(i).G_in_out=@(OM)(mode(i).phi(x_in)*mode(i).phi(x_out))./mode(i).mi./(-OM.^2+1i*OM*2*csi*mode(i).OM+mode(i).OM.^2);
-end
-G=@(OM)0*OM;
-for i=1:length(mode)
-    G=@(OM)G(OM)+mode(i).G_in_out(OM);
+
+G=@(OM) 0*OM;
+
+for ii=1:length(mode) 
+    mode(ii).mi=trapz(xx,mode(ii).phi(xx).^2*beam.m);
+    mode(ii).G_in_out=@(OM)(mode(ii).phi(x_in)*mode(ii).phi(x_out))./mode(ii).mi./(-OM.^2+1i*OM*2*csi*mode(ii).OM+mode(ii).OM.^2);
+    G=@(OM)G(OM)+F_sgn*mode(ii).G_in_out(OM);
 end
 
 end

@@ -1,3 +1,63 @@
+clear
+close all
+clc
+
+% Cantilever Beam
+syms A B C D x omega gamma E J L
+
+w_x =  A*cos(gamma*x) + B*sin(gamma*x) + C*cosh(gamma*x) + D*sinh(gamma*x);
+dw_x = diff(w_x, x)
+ddw_x = diff(dw_x, x)
+dddw_x = diff(ddw_x, x)
+
+% BCs
+% w_x(0) = 0, w'_x(0) = 0, EJ*w''_x(L) = 0, EJ*w'''_x(L) = 0
+
+H = [
+    1, 0, 1, 0;
+    0, gamma, 0, gamma;
+    -E*J*gamma^2*cos(gamma*L), -E*J*gamma^2*sin(gamma*L), E*J*gamma^2*cosh(gamma*L), E*J*gamma^2*sinh(gamma*L);
+    E*J*gamma^3*sin(gamma*L), -E*J*gamma^3*cos(gamma*L), E*J*gamma^3*sinh(gamma*L), E*J*gamma^3*cosh(gamma*L);
+];
+
+detH = matlabFunction(det(H));
+
+% Dati
+L = 1200e-3; % m
+h = 8e-3; %    m
+b = 40e-3; %   m
+rho = 2700; %  kg/m^3
+E = 68e9; %    Pa
+
+A = b*h;
+m = rho*A;
+
+J = b*h^3/12;
+
+gamma = @(omega) (m*omega.^2./(E*J)).^(1/4);
+
+fmax = 500; % Hz
+
+detH = @(omega) detH(E,J,L,gamma(omega));
+
+figure
+fs = linspace(0, fmax, 1000*fmax);
+omegas = 2*pi*fs;
+gammas = gamma(omegas);
+abs_detH = abs(detH(omegas));
+semilogy(fs, abs_detH)
+grid on
+
+neg_detH = -abs_detH;
+[nat_freq, locs] = findpeaks(neg_detH);
+fs(locs)
+
+hold on
+
+scatter(fs(locs),abs_detH(locs))
+
+
+%%
 %countilever beam parameters
 clear all
 close all
@@ -9,7 +69,9 @@ beam.rho=2700; %kg/mm^3
 beam.E=68e9; %MPa
 beam.m=beam.rho*beam.h*beam.b; % kg/mm
 beam.J=beam.h^3*beam.b/12; % mm^4;
-f_vect=linspace(0,200,10000);
+f_max = 200;
+f_res = 10000;
+f_vect=linspace(0,f_max,f_res);
 om_vect=2*pi.*f_vect;
 g=@(om)(beam.m*om.^2/beam.E/beam.J).^(1/4);
 
@@ -93,31 +155,33 @@ grid
 
 %% work backwords compute parameters starting from sperimental FRFs
 %assume aproximation around mode 1
-fmin=mode(1).f-1;
-fmax=mode(1).f+1;
-f_min_max=linspace(fmin,fmax,100);
-om_min_max=f_min_max.*2*pi;
-Gnum=[];
-%try imposing function of a vector x where
-%x=[omi,csii,A1,A2,A3,Rl1,Rl2,Rl3,Rh1,Rh2,Rh3]
-%    1   2   3  4  5   6   7   8   9   10  11
-% EPS=@(x)0*x;
-% for i=1:100
-%     for r=1:3
-%         Gnum{i,r}=@(x)x(2+r)./(-om_min_max(i).^2 + 1i*2.*x(2).*x(1) + x(1).^2) + ;
-%         eps{i,r}=@(x)real(FRF_list{r}(i)-Gnum{i,r}(x)).^2+imag(FRF_list{r}(i)-Gnum{i,r}(x)).^2;
-%         EPS=@(x)EPS(x)+eps{i,r}(x);
-%     end
-% end
-% x0=ones(1,11);
-% 
+
+G_exp = [FRF1(om_vect)',FRF2(om_vect)', FRF3(om_vect)'];
+% x = [om_i,csi_1,A1,A2,A3,RL1,RL2,RL3,RH1,RH2,RH3];
+
+G_num = @(x,OM) x(3)/(-OM.^2+1i*2*x(2)*x(1).*OM+x(1)^2)+x(6)/OM^2+x(9);
+G_num1 =   @(x,OM) x(4)/(-OM.^2+1i*2*x(2)*x(1).*OM+x(1)^2)+x(7)/OM^2+x(10);
+G_num2 =   @(x,OM) x(5)/(-OM.^2+1i*2*x(2)*x(1).*OM+x(1)^2)+x(8)/OM^2+x(11);
 
 
+range = 1; %Hz
+for ii = 1:3
+[mode_ampl(:,ii),mode_loc_exp(:,ii)] = findpeaks(abs(G_exp(:,ii)));
+end
 
 
+err =@(x) [G_exp(mode_loc_exp(1)-f_res/f_max * range:mode_loc_exp(1)+f_res/f_max * range,1) - G_num1(x,f_vect(mode_loc_exp(1)-f_res/f_max * range:mode_loc_exp(1)+f_res/f_max * range));
+    G_exp(mode_loc_exp(2)-f_res/f_max * range:mode_loc_exp(2)+f_res/f_max * range,2) - G_num1(x,f_vect(mode_loc_exp(2)-f_res/f_max * range:mode_loc_exp(2)+f_res/f_max * range));
+    G_exp(mode_loc_exp(3)-f_res/f_max * range:mode_loc_exp(3)+f_res/f_max * range,3) - G_num1(x,f_vect(mode_loc_exp(3)-f_res/f_max * range:mode_loc_exp(3)+f_res/f_max * range));   
+];
 
 
+% x
 
+
+x01 = [mode_loc_exp(1,1),];
+tol = 1e-5
+k = find(abs(abs(G_exp(:,1)) - mode_ampl(1,1)/sqrt(2)) < tol);
 
 
 
