@@ -107,16 +107,28 @@ for i=1:100
         Gexp{i,r}=FRF_list{r}(om_min_max(i));
     end
 end
-[err] =@(x) er_comp(Gnum,Gexp,x);
+err =@(x) er_comp(Gnum,Gexp,x);
 
 % esimate x0
 omi=mode(1).OM;
+h = h_extim(FRF1,mode(1));
+A1=FRF1(mode(1).OM)*2*h*(mode(1).OM).^2*1i;
+A2=FRF2(mode(1).OM)*2*h*(mode(1).OM).^2*1i;
+A3=FRF3(mode(1).OM)*2*h*(mode(1).OM).^2*1i;
+x0=[omi,h,A1,A2,A3,0,0,0,0,0,0];
 
-
-
-
-
-
-
-
+x=lsqnonlin(err,x0);
+%%
+Gnum_val=cellfun(@(f)f(x),Gnum);
+figure
+subplot(2,1,1)
+semilogy(f_min_max,abs(FRF2(om_min_max)),LineWidth=2)
+hold on
+semilogy(f_min_max,abs(Gnum_val(:,2)),'o')
+grid on
+subplot(2,1,2)
+plot(f_min_max,angle(FRF2(om_min_max)),LineWidth=2)
+hold on
+plot(f_min_max,angle(Gnum_val(:,2)),'o')
+grid on
 
