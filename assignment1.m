@@ -59,45 +59,46 @@ scatter(fs(locs),abs_detH(locs))
 
 %%
 %countilever beam parameters
-clear all
+clear 
 close all
 clc
-beam.L=1.200;  % mm
-beam.h=0.008;
-beam.b=0.040;
-beam.rho=2700; %kg/mm^3
-beam.E=68e9; %MPa
-beam.m=beam.rho*beam.h*beam.b; % kg/mm
-beam.J=beam.h^3*beam.b/12; % mm^4;
-f_max = 200;
-f_res = 10000;
-f_vect=linspace(0,f_max,f_res);
-om_vect=2*pi.*f_vect;
-g=@(om)(beam.m*om.^2/beam.E/beam.J).^(1/4);
+
+% Beam Data
+
+beam.L=1.200;  % m
+beam.h=0.008;  % m
+beam.b=0.040;  % m
+beam.rho=2700; % kg/m^3
+beam.E=68e9;   % Pa - Alluminio
+beam.m=beam.rho*beam.h*beam.b; % kg/m
+beam.J=beam.h^3*beam.b/12;     % m^4;
+
+% Freq data
+f_max = 200;  % Hz
+f_res = 10000; % Hz
+f_vect = linspace(0, f_max, f_res);
+om_vect = 2*pi.*f_vect; % rad/s
+g = @(om) (beam.m*om.^2/beam.E/beam.J).^(1/4);
 
 %build the H matrix
-H=@(g)[1 0 1 0;
+H=@(g) [1 0 1 0;
     0 g 0 g;
     -beam.E*beam.J.*g.^2.*cos(g*beam.L) -beam.E*beam.J.*g.^2.*sin(g*beam.L) beam.E*beam.J.*g.^2.*cosh(g*beam.L) beam.E*beam.J.*g.^2.*sinh(g*beam.L);
     beam.E*beam.J.*g.^3.*sin(g*beam.L) -beam.E*beam.J*g.^3.*cos(g*beam.L) beam.E*beam.J*g.^3.*sinh(g*beam.L) beam.E*beam.J*g.^3.*cosh(g*beam.L) ];
-dets=[];
+dets=zeros(length(om_vect),1);
 for i = 1:length(om_vect)
     dets(i)=det(H(g(om_vect(i))));
 end
-% semilogy(om_vect,abs(dets))
-% hold on
-i_nat=[];
-for i=2:length(dets)-1
-    if abs(dets(i)) < abs(dets(i-1)) && abs(dets(i)) < abs(dets(i+1))
-        i_nat(end+1)=i;
-        
-    end
-end
-% semilogy(om_vect(i_nat),abs(dets(i_nat)),'or')
-% grid on
-%natural frequencies
-%computing mode shapes
-% figure
+abs_det = abs(dets);
+[amp, i_nat] = findpeaks(-abs(dets));
+
+figure
+semilogy(f_vect, abs_det)
+hold on
+scatter (f_vect(i_nat), abs_det(i_nat))
+grid on
+% computing mode shapes
+figure
 xx=linspace(0,beam.L,1000);
 for i =1:length(i_nat)
     mode(i).i_nat=i_nat(i);
@@ -107,11 +108,12 @@ for i =1:length(i_nat)
     mode(i).f=mode(i).OM/2/pi;
     mode(i).X=[1;-inv(mode(i).HH(2:end,2:end))*mode(i).HH(2:end,1)];
     mode(i).phi=@(x)mode(i).X(1)*cos(mode(i).G.*x) + mode(i).X(2)*sin(mode(i).G.*x)+ mode(i).X(3)*cosh(mode(i).G.*x) + mode(i).X(4)*sinh(mode(i).G.*x);
-    % plot(xx,mode(i).phi(xx))
-    % hold on
 
+    plot(xx, mode(i).phi(xx))
+    hold on
 end
-% grid on
+grid on
+
 % compute FRF
 %assume 
 x_in=.2; % m

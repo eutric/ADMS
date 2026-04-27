@@ -8,7 +8,7 @@ xx=linspace(0,beam.L,1000);
 G=@(OM) 0*OM;
 
 for ii=1:length(mode) 
-    mode(ii).mi=trapz(xx,mode(ii).phi(xx).^2*beam.m);
+    mode(ii).mi=trapz(xx,mode(ii).phi(xx).^2*beam.m); % modal mass
     mode(ii).G_in_out=@(OM)(mode(ii).phi(x_in)*mode(ii).phi(x_out))./mode(ii).mi./(-OM.^2+1i*OM*2*csi*mode(ii).OM+mode(ii).OM.^2);
     G=@(OM)G(OM)+F_sgn*mode(ii).G_in_out(OM);
 end
