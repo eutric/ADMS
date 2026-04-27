@@ -95,13 +95,13 @@ grid
 %assume aproximation around mode 1
 fmin=mode(1).f-1;
 fmax=mode(1).f+1;
-f_min_max=linspace(fmin,fmax,100);
+f_min_max=linspace(fmin,fmax,200);
 om_min_max=f_min_max.*2*pi;
 Gnum=[];
 %try imposing function of a vector x where
 %x=[omi,csii,A1,A2,A3,Rl1,Rl2,Rl3,Rh1,Rh2,Rh3];
  %  1   2   3  4  5   6   7   8   9   10  11
-for i=1:100
+for i=1:length(f_min_max)
     for r=1:3
         Gnum{i,r}=@(x)x(2+r)./(-om_min_max(i).^2 + 1i.*2.*x(2).*x(1).*om_min_max(i) + x(1).^2) + x(5+r)./(om_min_max(i).^2) + x(8+r) ;
         Gexp{i,r}=FRF_list{r}(om_min_max(i));
@@ -118,7 +118,8 @@ A2=FRF2(omi)*2*h*(omi).^2*1i;
 A3=FRF3(omi)*2*h*(omi).^2*1i;
 x0=[omi,h,A1,A2,A3,0,0,0,0,0,0];
 
-x=lsqnonlin(err,x0);
+x=lsqnonlin(err,x0)';
+
 %%
 Gnum_val=cellfun(@(f)f(x),Gnum);
 figure
