@@ -101,20 +101,16 @@ Gnum=[];
 %try imposing function of a vector x where
 %x=[omi,csii,A1,A2,A3,Rl1,Rl2,Rl3,Rh1,Rh2,Rh3];
  %  1   2   3  4  5   6   7   8   9   10  11
-EPS=@(x)0*x;
 for i=1:100
     for r=1:3
         Gnum{i,r}=@(x)x(2+r)./(-om_min_max(i).^2 + 1i*2.*x(2).*x(1) + x(1).^2) ;
-        eps{i,r}=@(x)real(FRF_list{r}(i)-Gnum{i,r}(x)).^2+imag(FRF_list{r}(i)-Gnum{i,r}(x)).^2;
-        % EPS=@(x)EPS(x)+eps{i,r}(x);
+        Gexp{i,r}=FRF_list{r}(om_min_max(i));
     end
 end
-EPS=@(x)sum(sum(cell2mat(eps(x))));
-x0=ones(1,11);
+[err] =@(x) er_comp(Gnum,Gexp,x);
 
-
-
-
+% esimate x0
+omi=mode(1).OM;
 
 
 
