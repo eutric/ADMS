@@ -103,18 +103,19 @@ Gnum=[];
  %  1   2   3  4  5   6   7   8   9   10  11
 for i=1:100
     for r=1:3
-        Gnum{i,r}=@(x)x(2+r)./(-om_min_max(i).^2 + 1i*2.*x(2).*x(1) + x(1).^2) ;
+        Gnum{i,r}=@(x)x(2+r)./(-om_min_max(i).^2 + 1i.*2.*x(2).*x(1).*om_min_max(i) + x(1).^2) + x(5+r)./(om_min_max(i).^2) + x(8+r) ;
         Gexp{i,r}=FRF_list{r}(om_min_max(i));
     end
 end
 err =@(x) er_comp(Gnum,Gexp,x);
 
 % esimate x0
-omi=mode(1).OM;
-h = h_extim(FRF1,mode(1));
-A1=FRF1(mode(1).OM)*2*h*(mode(1).OM).^2*1i;
-A2=FRF2(mode(1).OM)*2*h*(mode(1).OM).^2*1i;
-A3=FRF3(mode(1).OM)*2*h*(mode(1).OM).^2*1i;
+[fmax,i_omi]=max(abs(FRF1(om_min_max)));
+omi=om_min_max(i_omi);
+h = h_extim(FRF1,omi);
+A1=FRF1(omi)*2*h*(omi).^2*1i;
+A2=FRF2(omi)*2*h*(omi).^2*1i;
+A3=FRF3(omi)*2*h*(omi).^2*1i;
 x0=[omi,h,A1,A2,A3,0,0,0,0,0,0];
 
 x=lsqnonlin(err,x0);
@@ -122,13 +123,13 @@ x=lsqnonlin(err,x0);
 Gnum_val=cellfun(@(f)f(x),Gnum);
 figure
 subplot(2,1,1)
-semilogy(f_min_max,abs(FRF2(om_min_max)),LineWidth=2)
+semilogy(f_min_max,abs(FRF1(om_min_max)),LineWidth=2)
 hold on
-semilogy(f_min_max,abs(Gnum_val(:,2)),'o')
+semilogy(f_min_max,abs(Gnum_val(:,1)),'o')
 grid on
 subplot(2,1,2)
-plot(f_min_max,angle(FRF2(om_min_max)),LineWidth=2)
+plot(f_min_max,angle(FRF1(om_min_max)),LineWidth=2)
 hold on
-plot(f_min_max,angle(Gnum_val(:,2)),'o')
+plot(f_min_max,angle(Gnum_val(:,1)),'o')
 grid on
 
