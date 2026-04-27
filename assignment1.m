@@ -156,13 +156,16 @@ om_vect_test = 2*pi*f_vect_test;
 
 % A figure for each channel, near each mode
 for jj=1:n.ch
-    figure
+    fig_name = sprintf('Canale %d', jj);
+    figure('Name', fig_name, 'NumberTitle', 'off');
     for ii=1:n.modes
         subplot(2,n.modes,ii)
         semilogy(f_vect_test(ii,:), abs(FRF_list{jj}(om_vect_test(ii,:))))
         hold on
         semilogy(f_vect_test(ii,:), abs(G_in_out{jj}(om_vect_test(ii,:))),'o')
         grid on
+        tit = sprintf('Modo %d - f = %.2f Hz', ii, x_0s(1,ii)/2/pi);
+        title(tit)
         subplot(2,n.modes,ii+n.modes)
         plot(f_vect_test(ii,:), angle(FRF_list{jj}(om_vect_test(ii,:))))
         hold on
@@ -171,6 +174,8 @@ for jj=1:n.ch
     end
 
 end
+
+% comparison between frf (exp - num)
 
 figure
 subplot(2,1,1)
@@ -184,3 +189,25 @@ plot(f_vect, angle(G_in_out{1}(om_vect)), 'o')
 grid on
 hold on
 plot(f_vect, angle(FRF1(om_vect)));
+
+% comparison between mode shapes
+% i need the first 4 numeric eigen vector
+
+figure
+
+xx_test = linspace(0,1.2,4);
+for ii=1:n.modes
+    subplot(2,2,ii)
+    mode_num(ii).OM = x_0s(1,ii);
+    mode_num(ii).G=g(mode_num(ii).OM);
+    mode_num(ii).HH=H(mode_num(ii).G);
+    mode_num(ii).f=mode_num(ii).OM/2/pi;
+    mode_num(ii).X=[1;-inv(mode_num(ii).HH(2:end,2:end))*mode_num(ii).HH(2:end,1)];
+    mode_num(ii).phi=@(x)mode_num(ii).X(1)*cos(mode_num(ii).G.*x) + mode_num(ii).X(2)*sin(mode_num(ii).G.*x)+ mode_num(ii).X(3)*cosh(mode_num(ii).G.*x) + mode_num(ii).X(4)*sinh(mode_num(ii).G.*x);
+    plot(xx, mode(ii).phi(xx))
+    hold on
+    plot(xx_test,mode_num(ii).phi(xx_test),'o')
+    grid on
+    tit = sprintf('Modeshape %d - f = %.2f rad/s', ii, mode_num(ii).f);
+    title(tit)
+end
