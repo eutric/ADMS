@@ -10,9 +10,9 @@ n_ch = length(FRF_list);
 G_exp = zeros(length(OM_vect), n_ch);
 for jj = 1:n_ch
     G_exp(:,jj) = FRF_list{jj}(OM_vect)';
-    [mode_ampl(:,jj),mode_loc(:,jj)] = findpeaks(abs(G_exp(:,jj))); % Amplitude and location of the resonance peaks
+    [mode(jj).ampl,mode(jj).loc] = findpeaks(abs(G_exp(:,jj))); % Amplitude and location of the resonance peaks
 end % mode_ampl(ii,jj) is mode ii of pair jj
-n_modes = length(mode_loc(:,1));
+n_modes = length(mode(1).loc);
 
 x_sols = zeros(2 + 3*n_ch, n_modes);
 x_0s = x_sols;
@@ -20,23 +20,21 @@ x_0s = x_sols;
 G_num_list = cell(n_modes, n_ch);
 for ii = 1:n_modes % I do this, for the same mode of different pairs
     x0_ii = zeros (2 + 3*n_ch, 1);
-    x0_ii(1) = 2*pi*f_vect(mode_loc(ii,1)); % This should be the same for all the pairs
+    x0_ii(1) = 2*pi*f_vect(mode(1).loc(ii)); % This should be the same for all the pairs
 
-    d_dom = (angle(FRF_list{1}(OM_vect(mode_loc(ii,1)+1)))- ...
-            angle(FRF_list{1}(OM_vect(mode_loc(ii,1)))))/ (OM_vect(mode_loc(ii,1)+1) ...
-            -OM_vect(mode_loc(ii,1))); % derivate of phase of mode ii for the jj pair
+    d_dom = (angle(FRF_list{1}(OM_vect(mode(1).loc(ii)+1)))- ...
+            angle(FRF_list{1}(OM_vect(mode(1).loc(ii)))))/ (OM_vect(mode(1).loc(ii)+1) ...
+            -OM_vect(mode(1).loc(ii))); % derivate of phase of mode ii for the jj pair
             % Estimation of x0
 
-    x0_ii(2) = -1/(d_dom*OM_vect(mode_loc(ii,1)));
+    x0_ii(2) = -1/(d_dom*OM_vect(mode(1).loc(ii)));
 
     err_vec_ii = @(x) 0;
-    n_ch
     for jj = 1:n_ch % For each pair given (channel)
-        cond = @(OM)1;
-        G_num_list{ii, jj} = @(x, OM) x(2+jj)./(-OM.^2 + 1i*2*x(2)*x(1).*OM+x(1)^2) + cond(OM).*x(2+jj+n_ch)./OM.^2 + cond(OM).*x(2+jj+2*n_ch);
+        G_num_list{ii, jj} = @(x, OM) x(2+jj)./(-OM.^2 + 1i*2*x(2)*x(1).*OM+x(1)^2) + x(2+jj+n_ch)./OM.^2 + x(2+jj+2*n_ch);
         err_vec_old = @(x)err_vec_ii(x);
-        err_vec_ii = @(x) [err_vec_old(x); G_exp(mode_loc(ii,jj)-f_in_range*range : mode_loc(ii,jj)+f_in_range*range,jj) ...
-            - G_num_list{ii,jj}(x,OM_vect(mode_loc(ii,jj)-f_in_range*range : mode_loc(ii,jj) + ...
+        err_vec_ii = @(x) [err_vec_old(x); G_exp(mode(jj).loc(ii)-f_in_range*range : mode(jj).loc(ii)+f_in_range*range,jj) ...
+            - G_num_list{ii,jj}(x,OM_vect(mode(jj).loc(ii)-f_in_range*range : mode(jj).loc(ii) + ...
             f_in_range*range))']; % global error vector of mode ii
         x0_ii(2+jj)   = FRF_list{jj}(x0_ii(1))*2*x0_ii(2)*(x0_ii(1)).^2*1i;
         x0_ii(2+jj+n_ch) = 0;

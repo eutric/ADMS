@@ -196,7 +196,7 @@ plot(f_vect, angle(FRF1(om_vect)));
 % comparison between mode shapes
 % i need the first 4 numeric eigen vector
 
-%% point 5
+% point 5
 
 % From fitting, i can, now, estimate the values of the mode shape and the 
 % points where i evaluated the response
@@ -209,7 +209,7 @@ plot(f_vect, angle(FRF1(om_vect)));
 % 3. The modeshape is then known for each output point: phi_ij
 
 % 1 - x_j = x_k 
-x_j = .3; % Location of the input
+x_j = .5; % Location of the input
 
 [FRF_jj{1}] = FRF_num(mode, x_j, x_j, beam, -1);
 [x_sols, G_num_list, ~, n] = mode_i_num(FRF_jj, 1, f_vect);
@@ -219,7 +219,7 @@ for ii = 1:n.modes
     phi_ij(ii) = sqrt( imag( -2*x_sols(2,ii)*x_sols(1,ii)^2*G_num_list{ii,1}(x_sols(:,ii),x_sols(1,ii)) ) );
 end
 
-n_outs = 6;
+n_outs = 8;
 x_ks = linspace(0,beam.L, n_outs); % 6 output points, equally spaced
 
 FRFs = cell(n_outs, 1);
