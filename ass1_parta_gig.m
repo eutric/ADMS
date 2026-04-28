@@ -28,7 +28,6 @@ i_nat=[];
 for i=2:length(dets)-1
     if abs(dets(i)) < abs(dets(i-1)) && abs(dets(i)) < abs(dets(i+1))
         i_nat(end+1)=i;
-        
     end
 end
 semilogy(om_vect(i_nat),abs(dets(i_nat)),'or')
@@ -65,7 +64,7 @@ plot(f_vect,angle(G(om_vect)),LineWidth=2)
 grid on
     
 %% test FRF in other point, compute FRF_num
-x_out_vect=[0.2,0.5,0.7];
+x_out_vect=[0.4,0.5,1];
 [FRF1,mode1]=FRF_num(mode,x_in,x_out_vect(1),beam);
 [FRF2,mode2]=FRF_num(mode,x_in,x_out_vect(2),beam);
 [FRF3,mode3]=FRF_num(mode,x_in,x_out_vect(3),beam);
@@ -134,4 +133,32 @@ plot(f_min_max,angle(FRF1(om_min_max)),LineWidth=2)
 hold on
 plot(f_min_max,angle(Gnum_val(:,1)),'o')
 grid on
+%% point 5 
+xio=1.2;
+[FRFinin,mode1]=FRF_num(mode,xio,xio,beam);
+figure
+semilogy(f_vect,abs(FRFinin(om_vect)))
+grid on
+phi_i_in_out(1)=A1/(FRFinin(x(1))*1i*2*h*x(1)^2/mode1(1).mi);
+phi_i_in_out(2)=A2/(FRFinin(x(1))*1i*2*h*x(1)^2/mode1(1).mi);
+phi_i_in_out(3)=A3/(FRFinin(x(1))*1i*2*h*x(1)^2/mode1(1).mi);
+%analitical mode shape
+
+figure
+plot(xx,mode(1).phi(xx));
+hold on
+plot(x_out_vect,real(8.*phi_i_in_out),'o');%scaling done manually, non so se si può fare a priori
+
+
+
+
+
+
+
+
+
+
+
+
+
 
