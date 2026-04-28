@@ -1,4 +1,4 @@
-function [x_sols, G_num_list, x_0s, n] = mode_i_num(FRF_list, range, f_vect)
+function [x_sols, G_num_list, x_0s, n, err_vec] = mode_i_num(FRF_list, range, f_vect)
 
 OM_vect = 2*pi.*f_vect;
 f_res = length(f_vect);
@@ -40,10 +40,6 @@ for ii = 1:n_modes % I do this, for the same mode of different pairs
         err_vec_ii = @(x) [err_vec_old(x); G_exp(mode_loc(ii,jj)-f_in_range*range : mode_loc(ii,jj)+f_in_range*range,jj) ...
             - G_num_list{ii,jj}(x,OM_vect(mode_loc(ii,jj)-f_in_range*range : mode_loc(ii,jj) + ...
             f_in_range*range))']; % global error vector of mode ii
-        % x0_ii(2+jj)   = mode_ampl(ii,jj);
-        % x0_ii(2+jj+3) = .01*mode_ampl(ii,jj);
-        % x0_ii(2+jj+6) = .01*mode_ampl(ii,jj);
-        
         x0_ii(2+jj)   = FRF_list{jj}(x0_ii(1))*2*x0_ii(2)*(x0_ii(1)).^2*1i;
         x0_ii(2+jj+3) = 0;
         x0_ii(2+jj+6) = 0;
@@ -52,6 +48,7 @@ for ii = 1:n_modes % I do this, for the same mode of different pairs
     % err_ii = @(x) err_vec_ii(x)'*err_vec_ii(x);
     x_0s  (:,ii) = x0_ii;
     x_sols(:,ii) = lsqnonlin(err_vec_ii, x0_ii);
+    err_vec(:,ii) = err_vec_ii(x_sols(:,ii));
 end
 
 % Now i have a solution for each mode, the global FRF is the sum of the
