@@ -117,7 +117,7 @@ grid on
 
 % compute FRF
 %assume 
-x_in=.5; % m
+x_in=.6<; % m
 x_out=1.2;
 
 [G,mode]=FRF_num(mode,x_in,x_out,beam,-1); % L'ultimo parametro è la fase/contro fase di spostamento e forza, la prof li ha di segno opposto
@@ -142,7 +142,7 @@ FRF_list={FRF1,FRF2,FRF3};
 
 % x = [om_i,csi_1,A1,A2,A3,RL1,RL2,RL3,RH1,RH2,RH3];
 
-range = .5; %Hz
+range = 1; %Hz
 
 [x_sols, G_num_list, x_0s, n, errs] = mode_i_num(FRF_list, range, f_vect);
 
@@ -195,3 +195,22 @@ plot(f_vect, angle(FRF1(om_vect)));
 
 % comparison between mode shapes
 % i need the first 4 numeric eigen vector
+
+figure
+
+xx_test = linspace(0,1.2,8);
+for ii=1:n.modes
+    subplot(2,2,ii)
+    mode_num(ii).OM = x_0s(1,ii);
+    mode_num(ii).G=g(mode_num(ii).OM);
+    mode_num(ii).HH=H(mode_num(ii).G);
+    mode_num(ii).f=mode_num(ii).OM/2/pi;
+    mode_num(ii).X=[1;-inv(mode_num(ii).HH(2:end,2:end))*mode_num(ii).HH(2:end,1)];
+    mode_num(ii).phi=@(x)mode_num(ii).X(1)*cos(mode_num(ii).G.*x) + mode_num(ii).X(2)*sin(mode_num(ii).G.*x)+ mode_num(ii).X(3)*cosh(mode_num(ii).G.*x) + mode_num(ii).X(4)*sinh(mode_num(ii).G.*x);
+    plot(xx, mode(ii).phi(xx))
+    hold on
+    plot(xx_test,mode_num(ii).phi(xx_test),'o')
+    grid on
+    tit = sprintf('Modeshape %d - f = %.2f rad/s', ii, mode_num(ii).f);
+    title(tit)
+end
