@@ -95,7 +95,7 @@ grid
 %assume aproximation around mode 1
 fmin=mode(1).f-1;
 fmax=mode(1).f+1;
-f_min_max=linspace(fmin,fmax,200);
+f_min_max=linspace(fmin,fmax,400);
 om_min_max=f_min_max.*2*pi;
 Gnum=[];
 %try imposing function of a vector x where
@@ -110,13 +110,13 @@ end
 err =@(x) er_comp(Gnum,Gexp,x);
 
 % esimate x0
-[fmax,i_omi]=max(abs(FRF1(om_min_max)));
+[fmax,i_omi]=findpeaks(abs(FRF1(om_min_max)));
 omi=om_min_max(i_omi);
-h = h_extim(FRF1,omi);
+ h = h_extim(FRF1,omi);
 A1=FRF1(omi)*2*h*(omi).^2*1i;
 A2=FRF2(omi)*2*h*(omi).^2*1i;
 A3=FRF3(omi)*2*h*(omi).^2*1i;
-x0=[omi,h,A1,A2,A3,0,0,0,0,0,0];
+x0=[omi,0.0107,A1,A2,A3,0,0,0,0,0,0]';
 
 x=lsqnonlin(err,x0)';
 
