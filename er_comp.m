@@ -7,7 +7,7 @@ err=0;
 err=0;
 for i =1:m
     for j=1:n
-        err=err+real(Gnum{i,j}(x)-Gexp{i,j}).^2+imag(Gnum{i,j}(x)-Gexp{i,j}).^2;
+        err=[err;Gnum{i,j}(x)-Gexp{i,j}];
     end
 end
 
