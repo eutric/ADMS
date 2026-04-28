@@ -195,3 +195,60 @@ plot(f_vect, angle(FRF1(om_vect)));
 
 % comparison between mode shapes
 % i need the first 4 numeric eigen vector
+
+%% point 5
+
+% From fitting, i can, now, estimate the values of the mode shape and the 
+% points where i evaluated the response
+
+% 1. From mode_i_num(), i can now estimate A = phi_ij*phi_ik
+
+% 2. Fixing the input (k), i can at first derive phi_ik for each mode and
+%    then, for any output, derive phi_ij
+
+% 3. The modeshape is then known for each output point: phi_ij
+
+% 1 - x_j = x_k 
+x_j = .3; % Location of the input
+
+[FRF_jj{1}] = FRF_num(mode, x_j, x_j, beam, -1);
+[x_sols, G_num_list, ~, n] = mode_i_num(FRF_jj, 1, f_vect);
+
+phi_ij = zeros(n.modes,1);
+for ii = 1:n.modes
+    phi_ij(ii) = sqrt( imag( -2*x_sols(2,ii)*x_sols(1,ii)^2*G_num_list{ii,1}(x_sols(:,ii),x_sols(1,ii)) ) );
+end
+
+n_outs = 6;
+x_ks = linspace(0,beam.L, n_outs); % 6 output points, equally spaced
+
+FRFs = cell(n_outs, 1);
+for ii = 1:n_outs
+    FRFs{ii} = FRF_num(mode, x_j, x_ks(ii), beam, 1);
+end
+
+[x_sols, G_num_list, x_0s, n] = mode_i_num(FRFs, 1, f_vect);
+
+% For each solution, i have the estimated A, from wich i can deriva 
+% phi_ij
+phi_ik = zeros(n.modes, n.ch);
+for ii=1:n.modes
+    for jj=1:n.ch
+        phi_ik(ii,jj) = G_num_list{ii,jj}(x_sols(:,ii),x_sols(1,ii))*2*x_sols(2,ii)*x_sols(1,ii)^2/phi_ij(ii);
+    end
+end
+
+% => A is matrix n.ch x n.modes, the element jj,ii is the i-th mode value
+% on point j of the i-th modeshape
+% => to reconstruct the shape of each mode, it's enough to plot these
+% points (?)
+
+figure
+for ii=1:n.modes
+    subplot(2,2,ii)
+    plot(xx, mode(ii).phi(xx));
+    hold on
+    scatter(x_ks, phi_ik(ii,:))
+    grid on
+end
+

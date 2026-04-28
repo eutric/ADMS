@@ -6,12 +6,10 @@ f_max = f_vect(end);
 f_in_range = floor(f_res/f_max);
 % x = [om_i,csi_1,A1,A2,A3,RL1,RL2,RL3,RH1,RH2,RH3];
 
-G_exp = [
-    FRF_list{1}(OM_vect)', FRF_list{2}(OM_vect)', FRF_list{3}(OM_vect)'
-]; % I want this to be length(OM_vect) x 3
-
 n_ch = length(FRF_list);
+G_exp = zeros(length(OM_vect), n_ch);
 for jj = 1:n_ch
+    G_exp(:,jj) = FRF_list{jj}(OM_vect)';
     [mode_ampl(:,jj),mode_loc(:,jj)] = findpeaks(abs(G_exp(:,jj))); % Amplitude and location of the resonance peaks
 end % mode_ampl(ii,jj) is mode ii of pair jj
 n_modes = length(mode_loc(:,1));
@@ -32,17 +30,17 @@ for ii = 1:n_modes % I do this, for the same mode of different pairs
     x0_ii(2) = -1/(d_dom*OM_vect(mode_loc(ii,1)));
 
     err_vec_ii = @(x) 0;
-
+    n_ch
     for jj = 1:n_ch % For each pair given (channel)
         cond = @(OM)1;
-        G_num_list{ii, jj} = @(x, OM) x(2+jj)./(-OM.^2 + 1i*2*x(2)*x(1).*OM+x(1)^2) + cond(OM).*x(2+jj+3)./OM.^2 + cond(OM).*x(2+jj+6);
+        G_num_list{ii, jj} = @(x, OM) x(2+jj)./(-OM.^2 + 1i*2*x(2)*x(1).*OM+x(1)^2) + cond(OM).*x(2+jj+n_ch)./OM.^2 + cond(OM).*x(2+jj+2*n_ch);
         err_vec_old = @(x)err_vec_ii(x);
         err_vec_ii = @(x) [err_vec_old(x); G_exp(mode_loc(ii,jj)-f_in_range*range : mode_loc(ii,jj)+f_in_range*range,jj) ...
             - G_num_list{ii,jj}(x,OM_vect(mode_loc(ii,jj)-f_in_range*range : mode_loc(ii,jj) + ...
             f_in_range*range))']; % global error vector of mode ii
         x0_ii(2+jj)   = FRF_list{jj}(x0_ii(1))*2*x0_ii(2)*(x0_ii(1)).^2*1i;
-        x0_ii(2+jj+3) = 0;
-        x0_ii(2+jj+6) = 0;
+        x0_ii(2+jj+n_ch) = 0;
+        x0_ii(2+jj+2*n_ch) = 0;
     end
 
     % err_ii = @(x) err_vec_ii(x)'*err_vec_ii(x);
