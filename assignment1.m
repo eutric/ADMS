@@ -213,7 +213,7 @@ plot(f_vect, angle(FRF1(om_vect)));
 % 3. The modeshape is then known for each output point: phi_ij
 
 % 1 - x_j = x_k 
-x_j = .2; % Location of the input
+x_j = .65; % Location of the input
 
 [FRF_jj{1}] = FRF_num(mode, x_j, x_j, beam, 1);
 [x_sols, ~, ~, ~] = mode_i_num(FRF_jj, 1, f_vect, mode);
@@ -225,7 +225,7 @@ phi_ij = sqrt(real(Ajj));
 %     phi_ij(ii) = sqrt( 1i*2*x_sols(2,ii)*x_sols(1,ii)^2*G_num_list{ii,1}(x_sols(:,ii),x_sols(1,ii)) );
 % end
 
-n_outs = 8;
+n_outs = 20;
 x_ks = linspace(0,beam.L, n_outs); % 6 output points, equally spaced
 
 FRFs = cell(n_outs, 1);
@@ -260,7 +260,11 @@ for ii=1:n.modes
     subplot(2,2,ii)
     plot(xx, mode(ii).phi(xx));
     hold on
-    scatter(x_ks, phi_ik(:,ii))
+    if (mode(ii).phi(x_ks(end))>0 && phi_ik(end,ii) > 0) || (mode(ii).phi(x_ks(end))<0 && phi_ik(end,ii) < 0)
+        scatter(x_ks, phi_ik(:,ii))
+    else
+        scatter(x_ks, -phi_ik(:,ii))
+    end
     grid on
 end
 
