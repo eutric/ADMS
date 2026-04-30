@@ -33,7 +33,8 @@ for ii = 1:4
 
     %FEM
     mode = ii;
-    mode_sel = modeshapes(modeshapes.No == mode,:);
+    mode_sel = modeshapes(modeshapes.No == mode,:); % This takes all rows of modeshapes elements of mode ii,
+    % rows contain:  ux, uy, uz e ID
     [~,Locb] = ismember(mode_sel.ID,nodes.ID);
     modedef  = mode_sel{Locb,[{'uX'},{'uY'},{'uZ'}]};
 
@@ -45,7 +46,7 @@ for ii = 1:4
     hold on
     view(2)
 
-    cc=(modedef(:,3))/fff;
+    cc=(modedef(:,3))/fff; % normalization
     patch('Faces',nodi123,'Vertices',[nodes.X,nodes.Y,nodes.Z]+modedef/fff*scalaFEM,...
         'CData',cc,'FaceColor','interp','EdgeColor','none')
     title(sprintf('FEM -- Mode %i: f=%5.3f Hz', mode,modpar.freq(mode)) )

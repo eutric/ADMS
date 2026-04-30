@@ -24,13 +24,13 @@ semilogy(f_vect, abs(FRFs), 'cyan', LineWidth=.5)
 grid on
 xlim([2,8])
 hold on
-semilogy(f_vect, abs(FRF_average), 'magenta', LineWidth=2)
+semilogy(f_vect, abs(FRF_average), 'magenta')
 
 subplot(2,1,2)
 plot(f_vect, angle(FRFs), 'cyan')
 xlim([2,8])
 hold on
-plot(f_vect, angle(FRF_average), 'magenta', LineWidth=2)
+plot(f_vect, ang(FRF_average), 'magenta')
 
 
 
