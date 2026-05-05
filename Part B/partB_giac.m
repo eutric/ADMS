@@ -16,7 +16,8 @@ n_f_min = ceil(f_min_interest*f_res); % number of elements of the first 2 Hz
 f_vect = f_vect(n_f_min:n_f_max); % Frequency vector of interest
 FRFs = FRFs(n_f_min:n_f_max,:)';  % FRFs of interest (0-8 Hz)
 
-FRF_average = mean(FRFs);
+abs_average = mean(abs(FRFs));
+ang_average = mean(angle(FRFs));
 
 figure
 subplot(2,1,1)
@@ -24,13 +25,13 @@ semilogy(f_vect, abs(FRFs), 'cyan', LineWidth=.5)
 grid on
 xlim([2,8])
 hold on
-semilogy(f_vect, abs(FRF_average), 'magenta', LineWidth=2)
+semilogy(f_vect, abs_average,'magenta', LineWidth=2)
 
 subplot(2,1,2)
 plot(f_vect, angle(FRFs), 'cyan')
 xlim([2,8])
 hold on
-plot(f_vect, angle(FRF_average), 'magenta', LineWidth=2)
+plot(f_vect, ang_average, 'magenta', LineWidth=2)
 
 
 
