@@ -125,14 +125,14 @@ x_in=.2; % m
 x_out=.6;
 
 [G,mode]=FRF_num(mode,x_in,x_out,beam,-1); % L'ultimo parametro è la fase/contro fase di spostamento e forza, la prof li ha di segno opposto
-% figure
-% subplot(2,1,1)
-% semilogy(f_vect,abs(G(om_vect)),LineWidth=2)
-% grid on
-% subplot(2,1,2)
-% plot(f_vect,angle(G(om_vect)),LineWidth=2)
-% grid on
-% 
+figure
+subplot(2,1,1)
+semilogy(f_vect,abs(G(om_vect)),LineWidth=2)
+grid on
+subplot(2,1,2)
+plot(f_vect,angle(G(om_vect)),LineWidth=2)
+grid on
+
 % test FRF in other point, compute FRF_num
 x_out_vect=[0.2,0.7,1.2];
 [FRF1,mode1]=FRF_num(mode,x_in,x_out_vect(1),beam);

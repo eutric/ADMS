@@ -1,5 +1,5 @@
 clear
-close all
+% close all
 clc
 %load data
 FRF_data = load("FRF_H1.mat");
