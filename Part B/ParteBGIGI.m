@@ -1,6 +1,5 @@
 clear
 close all
-% close all
 clc
 %load data
 FRF_data = load("FRF_H1.mat");
@@ -70,11 +69,15 @@ h_vect=(om2.^2-om1.^2)./4./om0.^2;
 %position in k, the mode shape  for FRF_kj relative to a i mode
 for i =1:length(res_f)
     for j=1:m
-        unnnormed_mode(i,j)=-imag(2*h_vect(i).*(om_vect(pks_i(i))).^2*FRFs_og(j,pks_i(i)));
-        
+        unnormed_mode(i,j)=-imag(2*h_vect(i).*(om_vect(pks_i(i))).^2*FRFs_og(j,pks_i(i)));
     end
 end
-
+load("PuntiLaser_FS_FEM.mat")
+figure
+for i=1:4
+    subplot(2,2,i)
+    scatter3(x,y,z-50.*unnormed_mode(i,:)')
+end
 
 
 
