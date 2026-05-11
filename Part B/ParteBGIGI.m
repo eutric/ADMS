@@ -76,7 +76,7 @@ load("PuntiLaser_FS_FEM.mat")
 figure
 for i=1:4
     subplot(2,2,i)
-    scatter3(x,y,z-50.*unnormed_mode(i,:)')
+    scatteredInterpolant(x,y,z)
 end
 
 

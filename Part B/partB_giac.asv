@@ -124,7 +124,7 @@ nodi123 = [Loc1,Loc2,Loc3];
 
 % scale factor to display mode shapes
 scalaFEM = 10;
-scalaLASER = 70;
+scalaLASER = 10;
 
 % plot FEM model + experimental measuring point
 figure(100);
@@ -146,12 +146,12 @@ for ii = 1:4
     modedef  = mode_sel{Locb,[{'uX'},{'uY'},{'uZ'}]}; % scostamenti della modeshape ii in x y e z, dalla FEM
 
     % LASER - we only get z displacement
-    fff = max(abs(modedef(:,3)));
-
-    F = scatteredInterpolant(x, y, scalaLASER/fff*unnormed_mode(ii,:)'); % Funzione dei spostamenti laser registrati
+    F = scatterInterpolant(unnormed_mode(ii,:)); % Funzione dei spostamenti laser registrati
     % calcolabile nei nodi della FEM
 
-    z_LASER = F(nodes.X, nodes.Y);
+    
+
+    fff = max(abs(modedef(:,3)));
 
     figure 
     axis equal
@@ -159,8 +159,8 @@ for ii = 1:4
     hold on
     view(2)
 
-    cc=z_LASER/fff; % normalization
-    patch('Faces',nodi123,'Vertices',[nodes.X,nodes.Y, z_LASER],...
+    cc=(modedef(:,3))/fff; % normalization
+    patch('Faces',nodi123,'Vertices',[nodes.X,nodes.Y,nodes.Z]+modedef/fff*scalaFEM,...
         'CData',cc,'FaceColor','interp','EdgeColor','none')
     title(sprintf('FEM -- Mode %i: f=%5.3f Hz', mode,modpar.freq(mode)) )
     nmap = 10;
