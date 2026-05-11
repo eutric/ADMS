@@ -5,7 +5,7 @@ clc
 %load data
 FRF_data = load("FRF_H1.mat");
 f_vect = FRF_data.f;
-FRFs = FRF_data.FRF_z;
+FRFs_og = FRF_data.FRF_z;
 
 f_res = length(f_vect)/f_vect(end);
 
@@ -16,20 +16,20 @@ n_f_min = ceil(f_min_interest*f_res); % number of elements of the first 2 Hz
 
 f_vect = f_vect(n_f_min:n_f_max); % Frequency vector of interest
 om_vect=f_vect*2*pi;
-FRFs = FRFs(n_f_min:n_f_max,:)';  % FRFs of interest (0-8 Hz)
-[m,n]=size(FRFs);
+FRFs_og = FRFs_og(n_f_min:n_f_max,:)';  % FRFs of interest (0-8 Hz)
+[m,n]=size(FRFs_og);
 
 % look for FRFs in antimodal positions
 %compute max value of each FRF to select only the stronger ones
 max_v=[];
 for i=1:m
-    max_v(i)=max(FRFs(i,:));
+    max_v(i)=max(FRFs_og(i,:));
 end
 [maxes,maxes_i]=sort(max_v,'descend');
 %select first 50 FRF
 FRFi=maxes_i(1:100);
-FRFs=FRFs(FRFi,:);
-absavg= mean(abs(FRFs),1);
+FRFs=FRFs_og(FRFi,:);
+absavg=mean(abs(FRFs),1);
 phavg=mean(angle(FRFs),1);
 figure
 subplot(2,1,1)
@@ -69,7 +69,10 @@ h_vect=(om2.^2-om1.^2)./4./om0.^2;
 %for each FRF the mode shape are scaled of a factor, fixed the input
 %position in k, the mode shape  for FRF_kj relative to a i mode
 for i =1:length(res_f)
-    for j=1:length
+    for j=1:m
+        unnnormed_mode(i,j)=-imag(2*h_vect(i).*(om_vect(pks_i(i))).^2*FRFs_og(j,pks_i(i)));
+        
+    end
 end
 
 
