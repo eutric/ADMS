@@ -72,15 +72,80 @@ for i =1:length(res_f)
         unnormed_mode(i,j)=-imag(2*h_vect(i).*(om_vect(pks_i(i))).^2*FRFs_og(j,pks_i(i)));
     end
 end
+load("FRF_H1.mat")
 load("PuntiLaser_FS_FEM.mat")
-figure
-for i=1:4
-    subplot(2,2,i)
-    scatter3(x,y,z-50.*unnormed_mode(i,:)')
+load("modal_output.mat")
+load("connectivity.mat")
+
+% nodes in the Canopy from FE
+[~,Loc1] = ismember(surface_canopy.Joint1,nodes.ID);
+[~,Loc2] = ismember(surface_canopy.Joint2,nodes.ID);
+[~,Loc3] = ismember(surface_canopy.Joint3,nodes.ID);
+nodi123 = [Loc1,Loc2,Loc3];
+
+% scale factor to display mode shapes
+scalaFEM = 10;
+scalaLASER = 70;
+
+% plot FEM model + experimental measuring point
+figure(100);
+cc=ones(length(nodes.X),1);
+patch('Faces',nodi123,'Vertices',[nodes.X,nodes.Y,nodes.Z],...
+    'CData',cc,'FaceColor','interp','EdgeColor','none')
+axis tight
+hold on;
+plot3(x,y,z+1,'ro','MarkerSize',4,'MarkerFaceColor','r')
+
+
+for ii = 1:4
+
+    %FEM
+    mode = ii;
+    mode_sel = modeshapes(modeshapes.No == mode,:); % This takes all rows of modeshapes elements of mode ii,
+    % rows contain:  ux, uy, uz e ID
+    [~,Locb] = ismember(mode_sel.ID,nodes.ID);
+    modedef  = mode_sel{Locb,[{'uX'},{'uY'},{'uZ'}]}; % scostamenti della modeshape ii in x y e z, dalla FEM
+
+    % LASER - we only get z displacement
+    fff = max(abs(modedef(:,3)));
+
+    F = scatteredInterpolant(x, y, scalaLASER/fff*unnormed_mode(ii,:)','natural'); % Funzione dei spostamenti laser registrati
+    Z = scatteredInterpolant(x,y,z,'natural');
+    % calcolabile nei nodi della FEM
+
+    z_LASER = F(nodes.X, nodes.Y);
+    z_nodes=Z(nodes.X, nodes.Y);
+
+    figure 
+    axis equal
+    grid on
+    hold on
+    view(2)
+
+    cc=z_LASER/fff; % normalization
+    figure(ii)
+    subplot(1,2,1)
+    patch('Faces',nodi123,'Vertices',[nodes.X,nodes.Y, z_LASER],...
+        'CData',cc,'FaceColor','interp','EdgeColor','none')
+    title(sprintf('FEM -- Mode %i: f=%5.3f Hz', mode,modpar.freq(mode)) )
+    nmap = 10;
+    map     = jet(nmap);
+    colormap(gca,map)
+    clim([-1 1])
+    cb = colorbar('eastoutside');
+    axis tight
+    subplot(1,2,2)
+    patch('Faces',nodi123,'Vertices',[nodes.X,nodes.Y,nodes.Z-z_nodes]+modedef/fff*scalaFEM,...
+        'CData',cc,'FaceColor','interp','EdgeColor','none')
+    title(sprintf('FEM -- Mode %i: f=%5.3f Hz', mode,modpar.freq(mode)) )
+    nmap1 = 10;
+    map     = jet(nmap);
+    colormap(gca,map)
+    clim([-1 1])
+    cb = colorbar('eastoutside');
+    axis tight
+
 end
-
-
-
 
 
 

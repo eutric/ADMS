@@ -1,5 +1,5 @@
 clear
-close all
+
 clc
 
 load("FRF_H1.mat")
