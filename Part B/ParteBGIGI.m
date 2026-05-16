@@ -69,7 +69,8 @@ h_vect=(om2.^2-om1.^2)./4./om0.^2;
 %position in k, the mode shape  for FRF_kj relative to a i mode
 for i =1:length(res_f)
     for j=1:m
-        unnormed_mode(i,j)=-imag(2*h_vect(i).*(om_vect(pks_i(i))).^2*FRFs_og(j,pks_i(i)));
+        OM=om_vect(pks_i(i));
+        unnormed_mode(i,j)=imag(2*h_vect(i).*(OM).^2*FRFs_og(j,pks_i(i)));
     end
 end
 load("FRF_H1.mat")
@@ -108,42 +109,41 @@ for ii = 1:4
 
     % LASER - we only get z displacement
     fff = max(abs(modedef(:,3)));
-
-    F = scatteredInterpolant(x, y, scalaLASER/fff*unnormed_mode(ii,:)','natural'); % Funzione dei spostamenti laser registrati
-    Z = scatteredInterpolant(x,y,z,'natural');
+    fff_exp=max(abs(unnormed_mode(ii,:)));
+    F = scatteredInterpolant(x, y,unnormed_mode(ii,:)','natural'); % Funzione dei spostamenti laser registrati
     % calcolabile nei nodi della FEM
 
     z_LASER = F(nodes.X, nodes.Y);
-    z_nodes=Z(nodes.X, nodes.Y);
-
+    zPlot=z_LASER/fff_exp*scalaLASER+nodes.Z;
+    
     figure 
-    axis equal
-    grid on
-    hold on
-    view(2)
-
-    cc=z_LASER/fff; % normalization
-    figure(ii)
-    subplot(1,2,1)
-    patch('Faces',nodi123,'Vertices',[nodes.X,nodes.Y, z_LASER],...
-        'CData',cc,'FaceColor','interp','EdgeColor','none');
+    cc0=z_LASER/fff_exp; % normalization
+    ax1=subplot(1,2,1);
+    patch('Faces',nodi123,'Vertices',[nodes.X,nodes.Y, zPlot],...
+        'CData',cc0,'FaceColor','interp','EdgeColor','none');
     title(sprintf('FEM -- Mode %i: f=%5.3f Hz', mode,modpar.freq(mode)) )
     nmap = 10;
     map     = jet(nmap);
-    colormap(gca,map)
-    clim([-1 1])
-    cb = colorbar('eastoutside');
+    colormap(ax1,map)
+    clim(ax1,[-1 1])
+    cb0 = colorbar(ax1,'eastoutside');
     axis tight
-    subplot(1,2,2)
-    patch('Faces',nodi123,'Vertices',[nodes.X,nodes.Y,nodes.Z-z_nodes]+modedef/fff*scalaFEM,...
-        'CData',cc,'FaceColor','interp','EdgeColor','none');
+    grid on
+    view(2)
+    %secondo plot
+    cc1=(modedef(:,3))/fff;
+    ax2=subplot(1,2,2);
+    patch('Faces',nodi123,'Vertices',[nodes.X,nodes.Y,nodes.Z]+modedef/fff*scalaFEM,...
+        'CData',cc1,'FaceColor','interp','EdgeColor','none');
     title(sprintf('FEM -- Mode %i: f=%5.3f Hz', mode,modpar.freq(mode)) )
     nmap1 = 10;
     map1     = jet(nmap1);
-    colormap(gcf,map1)
-    clim([-1 1])
-    cb = colorbar('eastoutside');
+    colormap(ax2,map1)
+    clim(ax2,[-1 1])
+    cb = colorbar(ax2,'eastoutside');
     axis tight
+    grid on
+    view(2)
 
 end
 
