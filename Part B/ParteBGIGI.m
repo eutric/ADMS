@@ -114,13 +114,13 @@ for ii = 1:4
     % calcolabile nei nodi della FEM
 
     z_LASER = F(nodes.X, nodes.Y);
-    zPlot=z_LASER/fff_exp*scalaLASER+nodes.Z;
+    zPlot=z_LASER/fff_exp*scalaLASER+nodes.Z; % ci sta
     
     figure 
     cc0=z_LASER/fff_exp; % normalization
     ax1=subplot(1,2,1);
     patch('Faces',nodi123,'Vertices',[nodes.X,nodes.Y, zPlot],...
-        'CData',cc0,'FaceColor','interp','EdgeColor','none');
+        'CData',cc0,'FaceColor','interp','EdgeColor','none'); % pazzia
     title(sprintf('FEM -- Mode %i: f=%5.3f Hz', mode,modpar.freq(mode)) )
     nmap = 10;
     map     = jet(nmap);
@@ -130,7 +130,7 @@ for ii = 1:4
     axis tight
     grid on
     view(2)
-    %secondo plot
+    %second o plot
     cc1=(modedef(:,3))/fff;
     ax2=subplot(1,2,2);
     patch('Faces',nodi123,'Vertices',[nodes.X,nodes.Y,nodes.Z]+modedef/fff*scalaFEM,...
