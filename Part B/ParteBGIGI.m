@@ -32,7 +32,7 @@ absavg=mean(abs(FRFs),1);
 phavg=mean(angle(FRFs),1);
 figure
 subplot(2,1,1)
-semilogy(f_vect, abs(FRFs), 'cyan', LineWidth=.01)
+semilogy(f_vect, abs(FRFs_og), 'cyan', LineWidth=.01)
 grid on
 xlim([2,8])
 hold on
@@ -44,7 +44,7 @@ xlim([2,8])
 grid on
 
 
-%% look fer peaks to identify the resonant frequencies
+% look fer peaks to identify the resonant frequencies
 
 [pks,pks_i]=findpeaks(absavg,"MinPeakWidth",5,"Threshold",2.05*1e-5);%using this criterias only the relevant peaks are found
 subplot(2,1,1)
@@ -69,8 +69,10 @@ h_vect=(om2.^2-om1.^2)./4./om0.^2;
 %position in k, the mode shape  for FRF_kj relative to a i mode
 for i =1:length(res_f)
     for j=1:m
-        OM=om_vect(pks_i(i));
-        unnormed_mode(i,j)=imag(2*h_vect(i).*(OM).^2*FRFs_og(j,pks_i(i)));
+        FRF_OM=interp1(om_vect,FRFs_og(j,:),om0(i)/sqrt(1-h_vect(i)^2));
+        OM=om0(i)*sqrt(1-h_vect(i)^2);
+        SF=2*h_vect(i).*(OM).^2*FRF_OM;
+        unnormed_mode(i,j)=abs(SF)*sign(angle(SF));
     end
 end
 load("FRF_H1.mat")
