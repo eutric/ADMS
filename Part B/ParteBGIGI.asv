@@ -21,12 +21,13 @@ FRFs_og = FRFs_og(n_f_min:n_f_max,:)';  % FRFs of interest (2-8 Hz)
 % look for FRFs in antimodal positions
 %compute max value of each FRF to select only the stronger ones
 max_v=[];
+x=rand(m);
 for i=1:m
-    max_v(i)=max(imag(FRFs_og(i,:)));
+    max_v(i)=x(i)*max(abs(imag(FRFs_og(i,:))));
 end
 [maxes,maxes_i]=sort(max_v,'descend');
 %select first 50 FRF
-FRFi=maxes_i(1:100);
+FRFi=maxes_i(1:30);
 FRFs=FRFs_og(FRFi,:);
 absavg=mean(abs(FRFs),1);
 

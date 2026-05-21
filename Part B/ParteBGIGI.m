@@ -21,12 +21,13 @@ FRFs_og = FRFs_og(n_f_min:n_f_max,:)';  % FRFs of interest (2-8 Hz)
 % look for FRFs in antimodal positions
 %compute max value of each FRF to select only the stronger ones
 max_v=[];
+x=rand(m);
 for i=1:m
-    max_v(i)=max(abs(imag(FRFs_og(i,:))));
+    max_v(i)=x(i)*max(abs(imag(FRFs_og(i,:))));
 end
 [maxes,maxes_i]=sort(max_v,'descend');
 %select first 50 FRF
-FRFi=maxes_i(1:100);
+FRFi=maxes_i(1:50);
 FRFs=FRFs_og(FRFi,:);
 absavg=mean(abs(FRFs),1);
 
@@ -46,7 +47,7 @@ grid on
 
 % look fer peaks to identify the resonant frequencies
 
-[pks,pks_i]=findpeaks(absavg,"MinPeakWidth",10,"Threshold",4*1e-5);%using this criterias only the relevant peaks are found
+[pks,pks_i]=findpeaks(absavg,"NPeaks",4,"Threshold",0.00017);%using this criterias only the relevant peaks are found
 subplot(2,1,1)
 plot(f_vect(pks_i),pks,'bo',LineWidth=2)
 res_f=f_vect(pks_i);
