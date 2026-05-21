@@ -15,38 +15,38 @@ n_f_min = ceil(f_min_interest*f_res); % number of elements of the first 2 Hz
 
 f_vect = f_vect(n_f_min:n_f_max); % Frequency vector of interest
 om_vect=f_vect*2*pi;
-FRFs_og = FRFs_og(n_f_min:n_f_max,:)';  % FRFs of interest (0-8 Hz)
+FRFs_og = FRFs_og(n_f_min:n_f_max,:)';  % FRFs of interest (2-8 Hz)
 [m,n]=size(FRFs_og);
 
 % look for FRFs in antimodal positions
 %compute max value of each FRF to select only the stronger ones
 max_v=[];
 for i=1:m
-    max_v(i)=max(FRFs_og(i,:));
+    max_v(i)=max(imag(FRFs_og(i,:)));
 end
 [maxes,maxes_i]=sort(max_v,'descend');
 %select first 50 FRF
 FRFi=maxes_i(1:100);
 FRFs=FRFs_og(FRFi,:);
 absavg=mean(abs(FRFs),1);
-phavg=mean(angle(FRFs),1);
+
 figure
 subplot(2,1,1)
-semilogy(f_vect, abs(FRFs_og), 'cyan', LineWidth=.01)
+semilogy(f_vect, abs(FRFs), 'cyan', LineWidth=.01)
 grid on
 xlim([2,8])
 hold on
 semilogy(f_vect, absavg, 'magenta', LineWidth=2)
 
 subplot(2,1,2)
-plot(f_vect, angle(FRFs), 'cyan',LineWidth=.01)
+plot(f_vect, -angle(FRFs), 'cyan',LineWidth=.01)
 xlim([2,8])
 grid on
 
 
 % look fer peaks to identify the resonant frequencies
 
-[pks,pks_i]=findpeaks(absavg,"MinPeakWidth",5,"Threshold",2.05*1e-5);%using this criterias only the relevant peaks are found
+[pks,pks_i]=findpeaks(absavg,"MinPeakWidth",10,"Threshold",4*1e-5);%using this criterias only the relevant peaks are found
 subplot(2,1,1)
 plot(f_vect(pks_i),pks,'bo',LineWidth=2)
 res_f=f_vect(pks_i);
@@ -69,10 +69,7 @@ h_vect=(om2.^2-om1.^2)./4./om0.^2;
 %position in k, the mode shape  for FRF_kj relative to a i mode
 for i =1:length(res_f)
     for j=1:m
-        FRF_OM=interp1(om_vect,FRFs_og(j,:),om0*sqrt(1-h_vect(i)^2));
-        OM=om0(i)*sqrt(1-h_vect(i)^2);
-        SF=2*h_vect(i).*(OM).^2*FRF_OM;
-        unnormed_mode(i,j)=abs(SF)*sign(angle(SF));
+        unnormed_mode(i,j)=-real(1i*2*om_vect(pks_i(i))^2*h_vect(i)*FRFs_og(j,pks_i(i)));
     end
 end
 load("FRF_H1.mat")
@@ -97,10 +94,11 @@ patch('Faces',nodi123,'Vertices',[nodes.X,nodes.Y,nodes.Z],...
     'CData',cc,'FaceColor','interp','EdgeColor','none')
 axis tight
 hold on;
-plot3(x,y,z+1,'ro','MarkerSize',4,'MarkerFaceColor','r')
+plot3(x(maxes_i(100:end)),y(maxes_i(100:end)),z(maxes_i(100:end))+1,'ro','MarkerSize',4,'MarkerFaceColor','r')
+plot3(x(maxes_i(1:100)),y(maxes_i(1:100)),z(maxes_i(1:100))+1,'go','MarkerSize',4,'MarkerFaceColor','g')
 
 
-for ii = 1:4
+for ii = 1:length(res_f)
 
     %FEM
     mode = ii;
