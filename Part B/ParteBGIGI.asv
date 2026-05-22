@@ -21,13 +21,13 @@ FRFs_og = FRFs_og(n_f_min:n_f_max,:)';  % FRFs of interest (2-8 Hz)
 % look for FRFs in antimodal positions
 %compute max value of each FRF to select only the stronger ones
 max_v=[];
-x=rand(m);
+
 for i=1:m
-    max_v(i)=x(i)*max(abs(imag(FRFs_og(i,:))));
+    max_v(i)=max(abs(imag(FRFs_og(i,:))))+k*abs(om_vect.*FRF);
 end
 [maxes,maxes_i]=sort(max_v,'descend');
 %select first 50 FRF
-FRFi=maxes_i(1:30);
+FRFi=maxes_i(1:50);
 FRFs=FRFs_og(FRFi,:);
 absavg=mean(abs(FRFs),1);
 
@@ -47,7 +47,7 @@ grid on
 
 % look fer peaks to identify the resonant frequencies
 
-[pks,pks_i]=findpeaks(absavg,"MinPeakWidth",10,"Threshold",4*1e-5);%using this criterias only the relevant peaks are found
+[pks,pks_i]=findpeaks(absavg,"NPeaks",4,"MinPeakWidth",5,"Threshold",1.4e-5);%using this criterias only the relevant peaks are found
 subplot(2,1,1)
 plot(f_vect(pks_i),pks,'bo',LineWidth=2)
 res_f=f_vect(pks_i);
@@ -120,7 +120,7 @@ for ii = 1:length(res_f)
     figure 
     cc0=z_LASER/fff_exp; % normalization
     ax1=subplot(1,2,1);
-    patch('Faces',nodi123,'Vertices',[nodes.X,nodes.Y, zPlot],...
+    patch('Faces',nodi123,'Vertices',[nodes.X,nodes.Y, nodes.Z+zPlot],...
         'CData',cc0,'FaceColor','interp','EdgeColor','none'); % pazzia
     title(sprintf('FEM -- Mode %i: f=%5.3f Hz', mode,modpar.freq(mode)) )
     nmap = 10;
