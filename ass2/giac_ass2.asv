@@ -309,19 +309,17 @@ title('Phase - From Vert in B to Horiz in A')
 grid on
 % Va bene perché aumentando i modi, diventano uguali
 % Da capire cosa succede a circa .91 Hz, aggiungendo i modi ad alta
-% frequenza lì si crea un antirisonanza... non c'ha un vers, non so se è
-% spiegabile però
+% frequenza lì si crea un antirisonanza... non c'ha un vers
+figure
+for ii=1:n_m
+    semilogy(fs, abs(q0s(ii,:)),LineWidth=1.5)
+    hold on
+end
+grid on
 
-% figure
-% for ii=1:n_m
-%     semilogy(fs, abs(q0s(ii,:)),LineWidth=1.5)
-%     hold on
-% end
-% grid on
+%
 
-% 5 - Static deflection of a vertical distributed load
-p = 7000; % N/m
-
+% 5
 %% functions
 function plot_beam(A, B, color)
     plot([A(1), B(1)], [A(2), B(2)], color, LineWidth=1.5);

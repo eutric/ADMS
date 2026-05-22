@@ -1,4 +1,4 @@
-function C = add_damper(node_1, node_2, C, c, G, idb)
+function C = add_internaldamper(node_1, node_2, C, c, G, idb)
 % Adds in global matrix K a spring from node_1 to node_2 of stiffness k
     x12 = [1,0,0,-1,0,0];
     Ck_local = c*(x12'*x12);
