@@ -320,8 +320,28 @@ grid on
 % grid on
 
 % 5 - Static deflection of a vertical distributed load
-p = 7000; % N/m
+pG = [  % N/m - global reference
+    0;
+    -7000;
+    0;
+];    
 
+el_blues = (23:30)'; % Number of elements ! NOT NODES
+n_blues = [
+    9;
+    17;
+    25;
+    26;
+    31;
+    35;
+    40;
+    41;
+    42
+];
+
+% I have to build the vector of forces, based on Stiffness coefficients
+% method
+% Each element has its gamma, 
 %% functions
 function plot_beam(A, B, color)
     plot([A(1), B(1)], [A(2), B(2)], color, LineWidth=1.5);
