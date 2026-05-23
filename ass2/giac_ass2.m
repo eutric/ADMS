@@ -59,7 +59,7 @@ arco = @(theta) [
 ];
 thetaF = acos((F(2)-I(2))/R) + pi/2;
 thetaH = 3/2*pi;
-arco_coord = arco(linspace(thetaF, thetaH, 4));
+arco_coord = arco(linspace(thetaF, thetaH, 8));
 
 figure
 % red 1
@@ -339,12 +339,79 @@ n_blues = [
     42
 ];
 
+Felm = zeros(114,1);
+Lambda2 = @(k) [ cos(gamma(k)) -sin(gamma(k)) 0 0 0 0;
+            sin(gamma(k)) cos(gamma(k)) 0 0 0 0;
+            0 0 1 0 0 0;
+            0 0 0 cos(gamma(k)) -sin(gamma(k)) 0 ;
+            0 0 0 sin(gamma(k)) cos(gamma(k)) 0 ;
+            0 0 0 0 0 1 ];
+
+for k = 23:30
+
+Lambda = [ cos(gamma(k)) -sin(gamma(k)) 0 ;
+        sin(gamma(k)) cos(gamma(k)) 0 ;
+           0 0 1 ];
+
+Pl = Lambda'*pG;
+Fnodes = [0; l(k)/2 * Pl(2) ; l(k)^2/12 * Pl(2); l(k) * Pl(1); l(k)/2 *Pl(2) ; -l(k)^2/12 * Pl(2)];
+
+
+
+Fnodes_global = Lambda2(k)*Fnodes;
+
+E = zeros(6,114);
+E(:,incidenze(k,:)) = eye(6);
+
+Felm = Felm + E'*Fnodes_global;
+
+end
+
+x =  Kff\Felm;
+figure()
+diseg2(x,10,incidenze,l,gamma,posiz,idb,xy)
+
+max_w= 0;
+
+
+for k = 23:30
+
+xglobal = x(incidenze(k,:));
+xlocal = Lambda2(k)'*xglobal;
+csi_vect= linspace(0,l(k),100000);
+
+a = xlocal(2); 
+b = xlocal(3);
+c = -3/l(k)^2 * xlocal(2) + 3/l(k)^2 * xlocal(4) -2/l(k)*xlocal(3) -1/l(k)*xlocal(6);
+d= 2/l(k)^3 * xlocal(2) -2/l(k)^3 *xlocal(4) +1/l(k)^2*xlocal(3)+1/l(k)^2*xlocal(6);
+
+coeff = [d,c,b,a];
+w = polyval(coeff,csi_vect);
+
+figure(6)
+plot(csi_vect,w);
+legend(sprintf('element %d', k))
+hold on
+
+[max_old,max_index] = max(abs(w));
+
+if max_w < max_old
+    max_w = max_old;
+    elemento = k;
+    maxloc = max_index;
+end
+end
+
+
+
+
+%%
 % I have to build the vector of forces, based on Stiffness coefficients
 % method
 % Each element has its gamma, 
 %% functions
+
 function plot_beam(A, B, color)
     plot([A(1), B(1)], [A(2), B(2)], color, LineWidth=1.5);
 end
-
 
