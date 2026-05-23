@@ -95,8 +95,8 @@ patch('Faces',nodi123,'Vertices',[nodes.X,nodes.Y,nodes.Z],...
     'CData',cc,'FaceColor','interp','EdgeColor','none')
 axis tight
 hold on;
-plot3(x(maxes_i(100:end)),y(maxes_i(100:end)),z(maxes_i(100:end))+1,'ro','MarkerSize',4,'MarkerFaceColor','r')
-plot3(x(maxes_i(1:100)),y(maxes_i(1:100)),z(maxes_i(1:100))+1,'go','MarkerSize',4,'MarkerFaceColor','g')
+plot3(x(maxes_i(50:end)),y(maxes_i(50:end)),z(maxes_i(50:end))+1,'ro','MarkerSize',4,'MarkerFaceColor','r')
+plot3(x(maxes_i(1:50)),y(maxes_i(1:50)),z(maxes_i(1:50))+1,'go','MarkerSize',4,'MarkerFaceColor','g')
 
 
 for ii = 1:length(res_f)
@@ -119,7 +119,7 @@ for ii = 1:length(res_f)
     
 
     z_LASER = F(nodes.X, nodes.Y);
-    zPlot=z_LASER/fff_exp*scalaLASER; % ci sta
+    zPlot=z_LASER/fff_exp*scalaFEM; % ci sta
     
     figure 
     cc0=z_LASER/fff_exp; % normalization
