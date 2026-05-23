@@ -22,7 +22,7 @@ FRFs_og = FRFs_og(n_f_min:n_f_max,:)';  % FRFs of interest (2-8 Hz)
 %compute max value of each FRF to select only the stronger ones
 max_v=[];
 for i=1:m
-    max_v(i)=max(abs(FRFs_og(i,:)))/mean(abs(FRFs_og(i,:)));
+    max_v(i)=max(abs(imag((FRFs_og(i,:))))/mean(abs(imag(FRFs_og(i,:)))));
 end
 [maxes,maxes_i]=sort(max_v,'descend');
 %select first 50 FRF
@@ -46,7 +46,7 @@ grid on
 
 % look fer peaks to identify the resonant frequencies
 
-[pks,pks_i]=findpeaks(absavg(1:ceil(f_res*3)),"NPeaks",4,"MinPeakWidth",5);
+[pks,pks_i]=findpeaks(absavg(1:ceil(f_res*3)),"NPeaks",4,"MinPeakWidth",4);
 %[pks,pks_i]=findpeaks(absavg,"NPeaks",4,"MinPeakWidth",5,"Threshold",1.4e-5);%using this criterias only the relevant peaks are found
 subplot(2,1,1)
 plot(f_vect(pks_i),pks,'bo',LineWidth=2)
