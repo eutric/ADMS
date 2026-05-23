@@ -59,7 +59,7 @@ arco = @(theta) [
 ];
 thetaF = acos((F(2)-I(2))/R) + pi/2;
 thetaH = 3/2*pi;
-arco_coord = arco(linspace(thetaF, thetaH, 8));
+arco_coord = arco(linspace(thetaF, thetaH, 4));
 
 figure
 % red 1
