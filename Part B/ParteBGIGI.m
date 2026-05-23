@@ -21,9 +21,8 @@ FRFs_og = FRFs_og(n_f_min:n_f_max,:)';  % FRFs of interest (2-8 Hz)
 % look for FRFs in antimodal positions
 %compute max value of each FRF to select only the stronger ones
 max_v=[];
-k=0;
 for i=1:m
-    max_v(i)=max(abs(imag(FRFs_og(i,:))))+k*max(abs(om_vect.*FRFs_og(i,:)));
+    max_v(i)=max(abs(FRFs_og(i,:)))/mean(abs(FRFs_og(i,:)));
 end
 [maxes,maxes_i]=sort(max_v,'descend');
 %select first 50 FRF
@@ -47,7 +46,7 @@ grid on
 
 % look fer peaks to identify the resonant frequencies
 
-[pks,pks_i]=findpeaks(absavg,"NPeaks",4,"MinPeakWidth",5,"Threshold",1.4e-5);
+[pks,pks_i]=findpeaks(absavg(1:ceil(f_res*3)),"NPeaks",4,"MinPeakWidth",5);
 %[pks,pks_i]=findpeaks(absavg,"NPeaks",4,"MinPeakWidth",5,"Threshold",1.4e-5);%using this criterias only the relevant peaks are found
 subplot(2,1,1)
 plot(f_vect(pks_i),pks,'bo',LineWidth=2)
@@ -101,7 +100,10 @@ plot3(x(maxes_i(1:100)),y(maxes_i(1:100)),z(maxes_i(1:100))+1,'go','MarkerSize',
 
 
 for ii = 1:length(res_f)
-
+    k=1;
+    if ii==3
+        k=-1;
+    end
     %FEM
     mode = ii;
     mode_sel = modeshapes(modeshapes.No == mode,:); % This takes all rows of modeshapes elements of mode ii,
@@ -111,9 +113,10 @@ for ii = 1:length(res_f)
 
     % LASER - we only get z displacement
     fff = max(abs(modedef(:,3)));
-    fff_exp=max(abs(unnormed_mode(ii,:)));
-    F = scatteredInterpolant(x, y,unnormed_mode(ii,:)','natural'); % Funzione dei spostamenti laser registrati
+    fff_exp=max(abs(k*unnormed_mode(ii,:)));
+    F = scatteredInterpolant(x, y,k*unnormed_mode(ii,:)','natural'); % Funzione dei spostamenti laser registrati
     % calcolabile nei nodi della FEM
+    
 
     z_LASER = F(nodes.X, nodes.Y);
     zPlot=z_LASER/fff_exp*scalaLASER; % ci sta
@@ -123,7 +126,7 @@ for ii = 1:length(res_f)
     ax1=subplot(1,2,1);
     patch('Faces',nodi123,'Vertices',[nodes.X,nodes.Y, nodes.Z+zPlot],...
         'CData',cc0,'FaceColor','interp','EdgeColor','none'); % pazzia
-    title(sprintf('FEM -- Mode %i: f=%5.3f Hz', mode,res_f(ii)/sqrt(70)) )
+    title(sprintf('LASER -- Mode %i: f=%5.3f Hz', mode,res_f(ii)/sqrt(70)) )
     nmap = 10;
     map     = jet(nmap);
     colormap(ax1,map)
@@ -148,7 +151,4 @@ for ii = 1:length(res_f)
     view(2)
 
 end
-
-
-
 
