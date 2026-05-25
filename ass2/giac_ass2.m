@@ -326,84 +326,76 @@ pG = [  % N/m - global reference
     0;
 ];    
 
-el_blues = (23:30)'; % Number of elements ! NOT NODES
-n_blues = [
-    9;
-    17;
-    25;
-    26;
-    31;
-    35;
-    40;
-    41;
-    42
+el_blues = 23:30; % Number of elements ! NOT NODES
+
+F = zeros(ndof,1);
+
+Lambda = @(g) [ 
+    cos(g), -sin(g), 0;
+    sin(g),  cos(g), 0;
+    0,       0,      1;
 ];
 
-Felm = zeros(114,1);
-Lambda2 = @(k) [ cos(gamma(k)) -sin(gamma(k)) 0 0 0 0;
-            sin(gamma(k)) cos(gamma(k)) 0 0 0 0;
-            0 0 1 0 0 0;
-            0 0 0 cos(gamma(k)) -sin(gamma(k)) 0 ;
-            0 0 0 sin(gamma(k)) cos(gamma(k)) 0 ;
-            0 0 0 0 0 1 ];
+Lambda2 = @(g) [ 
+    Lambda(g), zeros(3);
+    zeros(3),  Lambda(g)
+];
 
-for k = 23:30
-
-Lambda = [ cos(gamma(k)) -sin(gamma(k)) 0 ;
-        sin(gamma(k)) cos(gamma(k)) 0 ;
-           0 0 1 ];
-
-Pl = Lambda'*pG;
-Fnodes = [0; l(k)/2 * Pl(2) ; l(k)^2/12 * Pl(2); l(k) * Pl(1); l(k)/2 *Pl(2) ; -l(k)^2/12 * Pl(2)];
-
-
-
-Fnodes_global = Lambda2(k)*Fnodes;
-
-E = zeros(6,114);
-E(:,incidenze(k,:)) = eye(6);
-
-Felm = Felm + E'*Fnodes_global;
-
+for k = el_blues
+    pL = Lambda(gamma(k))'*pG;
+    Fnodes = [
+        0; 
+        l(k)/2 * pL(2); 
+        l(k)^2/12 * pL(2); 
+        l(k) * pL(1); 
+        l(k)/2 * pL(2); 
+        -l(k)^2/12 * pL(2)
+    ];
+    
+    Fnodes_global = Lambda2(gamma(k))*Fnodes;
+    
+    E = zeros(length(Fnodes),ndof);
+    E(:,incidenze(k,:)) = eye(length(Fnodes));
+    
+    F = F + E'*Fnodes_global;
 end
 
-x =  Kff\Felm;
+x =  Kff\F;
 figure()
-diseg2(x,10,incidenze,l,gamma,posiz,idb,xy)
-
-max_w= 0;
+diseg2(x,scale_factor,incidenze,l,gamma,posiz,idb,xy)
 
 
-for k = 23:30
+max_w = 0;
+labels = {};
+figure
+for k = el_blues 
 
-xglobal = x(incidenze(k,:));
-xlocal = Lambda2(k)'*xglobal;
-csi_vect= linspace(0,l(k),100000);
-
-a = xlocal(2); 
-b = xlocal(3);
-c = -3/l(k)^2 * xlocal(2) + 3/l(k)^2 * xlocal(4) -2/l(k)*xlocal(3) -1/l(k)*xlocal(6);
-d= 2/l(k)^3 * xlocal(2) -2/l(k)^3 *xlocal(4) +1/l(k)^2*xlocal(3)+1/l(k)^2*xlocal(6);
-
-coeff = [d,c,b,a];
-w = polyval(coeff,csi_vect);
-
-figure(6)
-plot(csi_vect,w);
-legend(sprintf('element %d', k))
-hold on
-
-[max_old,max_index] = max(abs(w));
-
-if max_w < max_old
-    max_w = max_old;
-    elemento = k;
-    maxloc = max_index;
+    xglobal = x(incidenze(k,:));
+    xlocal = Lambda2(gamma(k))'*xglobal;
+    csi_vect= linspace(0,l(k),100000);
+    % Cubic shape function for w(csi) - vertical displacement
+    a = xlocal(2); 
+    b = xlocal(3);
+    c = -3/l(k)^2 * xlocal(2) + 3/l(k)^2 * xlocal(4) -2/l(k)*xlocal(3) -1/l(k)*xlocal(6); 
+    d= 2/l(k)^3 * xlocal(2) -2/l(k)^3 *xlocal(4) +1/l(k)^2*xlocal(3)+1/l(k)^2*xlocal(6);
+    
+    coeff = [d,c,b,a];
+    w = polyval(coeff,csi_vect);
+    
+    
+    plot(csi_vect,w, 'DisplayName', sprintf('Elemento %d', k));
+    labels{end+1} = sprintf('Elemento %d', k);
+    legend(labels); 
+    hold on
+    
+    [max_old,max_index] = max(abs(w));
+    
+    if max_w < max_old
+        max_w = max_old;
+        elemento = k;
+        maxloc = max_index;
+    end
 end
-end
-
-
-
 
 %%
 % I have to build the vector of forces, based on Stiffness coefficients
