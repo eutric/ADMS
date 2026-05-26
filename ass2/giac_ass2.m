@@ -250,7 +250,7 @@ grid on
 % 4 
 % a - modal superposition
 tic
-n_m = 19; % I consider only 2 first modes
+n_m = 2; % I consider only 2 first modes
 Phi = modes(:,1:n_m);
 
 F0 = zeros(ndof, 1);
@@ -377,7 +377,7 @@ for k = el_blues
     a = xlocal(2); 
     b = xlocal(3);
     c = -3/l(k)^2 * xlocal(2) + 3/l(k)^2 * xlocal(4) -2/l(k)*xlocal(3) -1/l(k)*xlocal(6); 
-    d= 2/l(k)^3 * xlocal(2) -2/l(k)^3 *xlocal(4) +1/l(k)^2*xlocal(3)+1/l(k)^2*xlocal(6);
+    d = 2/l(k)^3 * xlocal(2) -2/l(k)^3 *xlocal(4) +1/l(k)^2*xlocal(3)+1/l(k)^2*xlocal(6);
     
     coeff = [d,c,b,a];
     w = polyval(coeff,csi_vect);
@@ -397,12 +397,37 @@ for k = el_blues
     end
 end
 
-%%
-% I have to build the vector of forces, based on Stiffness coefficients
-% method
-% Each element has its gamma, 
-%% functions
+%% 6
+m = 90; % kg
+v0 = 2; % m/s
 
+a1 = 3.5;
+a2 = 1.5;
+x_curv = 67.6;
+
+a = .5*a1;
+b = v0;
+c = -x_curv;
+
+t1 = (-b-sqrt(b^2-4*a*c))/2/a; % <0 
+t2 = (-b+sqrt(b^2-4*a*c))/2/a; % >0
+
+a_L = @(t) a1*(t<=t2) + a2*(t>t2);
+v_L = @(t) v0 + a(t)*t;
+
+v = @(t) lambda(gamma(el_blues(1)))*[v_L(t);0;0];
+
+ts = linspace(0,100,1000);
+
+% x_L = @(t, x0) v0*t + 1/2*a(t)*t^2;
+
+F = [
+    0;
+    -m*9.81;
+    0;
+];
+
+%% functions
 function plot_beam(A, B, color)
     plot([A(1), B(1)], [A(2), B(2)], color, LineWidth=1.5);
 end
