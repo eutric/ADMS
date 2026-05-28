@@ -421,7 +421,7 @@ x_t = @(t) (t<=t27)*(v0*t + 1/2*a1*t^2) + (t>t27 & t<=t30)*(cum(27-21)+v27*(t-t2
 m = 90; % kg
 F = [
     0;
-    m*9.81; % Col segno più ha più senso - forza locale di là
+    -m*9.81; % Col segno più ha più senso - forza locale di là
     0;
 ];
 n = length(M);
@@ -460,11 +460,16 @@ xs = Phi*zs(:,1:n_m)';
 figure
 plot(ts, xs(idb(n_B,2),:))
 grid on
+cum = [0, cumsum(l(23:30))];
 for ii=1:length(ts)
     Fts(:,ii) = F_t(F, x_t, ts(ii), n, ndof, l, gamma, incidenze);
+    xss(ii) = x_t(ts(ii));
 end
+
 figure
 plot(ts, Fts(idb(n_B,2),:))
+% figure(10)
+% plot(ts, xss')
 %% functions
 
 function plot_beam(A, B, color)

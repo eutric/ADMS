@@ -4,8 +4,8 @@ x = x_t(t);
 cum = [0, cumsum(l(23:30))];
 n_el = 22 + find(x >= cum(1:end-1) & x < cum(2:end), 1, 'first');
 l = l(n_el);
-a = x - cum(n_el-22);
-% b = l-a;
+a = x - cumsum(n_el-22)
+b = l-a
 
 lambda = @(g) [ 
     cos(g), -sin(g), 0;
@@ -29,12 +29,12 @@ F_L = lambda(gamma(n_el))'*F;
 % ];
 csi = a/l;
 Fk_local = [
-    F_L(1)*(1-csi);
-    F_L(2)*(2*csi^3-3*(csi)^2+1);
-    F_L(2)*l*(csi^3-2*csi^2+csi);
-    F_L(1)*csi;
-    F_L(2)*(-2*csi^3+3*csi^2);
-    F_L(2)*l*(csi^3-csi^2);
+    F_L(1)*(1-csi/l);
+    F_L(2)*(2*(csi/l)^3-3*(xi/l)^2+1);
+    F_L(2)*l*((csi/l)^3-2*(csi/l)^2+csi/l);
+    F_L(1)*csi/l;
+    F_L(2)*(-2*(a/l)^3+3*(a/l)^2);
+    F_L(2)*l*((a/l)^3-(a/l)^2);
 ];
 
 Fk_global = Lambda(gamma(n_el))*Fk_local;
