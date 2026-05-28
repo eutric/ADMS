@@ -344,10 +344,10 @@ Lambda2 = @(g) [
 for k = el_blues
     pL = Lambda(gamma(k))'*pG;
     Fnodes = [
-        0; 
+        l(k) * pL(1); 
         l(k)/2 * pL(2); 
         l(k)^2/12 * pL(2); 
-        l(k) * pL(1); 
+        l(k) * pL(1)/2; 
         l(k)/2 * pL(2); 
         -l(k)^2/12 * pL(2)
     ];
@@ -367,7 +367,7 @@ diseg2(x,scale_factor,incidenze,l,gamma,posiz,idb,xy)
 
 max_w = 0;
 labels = {};
-figure
+% figure
 for k = el_blues 
 
     xglobal = x(incidenze(k,:));
@@ -383,10 +383,10 @@ for k = el_blues
     w = polyval(coeff,csi_vect);
     
     
-    plot(csi_vect,w, 'DisplayName', sprintf('Elemento %d', k));
-    labels{end+1} = sprintf('Elemento %d', k);
-    legend(labels); 
-    hold on
+    % plot(csi_vect,w, 'DisplayName', sprintf('Elemento %d', k));
+    % labels{end+1} = sprintf('Elemento %d', k);
+    % legend(labels); 
+    % hold on
     
     [max_old,max_index] = max(abs(w));
     
@@ -397,38 +397,76 @@ for k = el_blues
     end
 end
 
-%% 6
-m = 90; % kg
 v0 = 2; % m/s
-
 a1 = 3.5;
 a2 = 1.5;
-x_curv = 67.6;
+cum = [0, cumsum(l(23:30))];
 
-a = .5*a1;
+% Prima legge oraria, cerco t in cui: cum(27-21) = v01*t + 1/2*a1*t^2
+v1 = @(t) v0 + a1*t;
+a = 1/2*a1;
 b = v0;
-c = -x_curv;
+c = -cum(27-21);
+t27 = (-b+sqrt(b^2-4*a*c))/(2*a);
+v27 = v1(t27);
 
-t1 = (-b-sqrt(b^2-4*a*c))/2/a; % <0 
-t2 = (-b+sqrt(b^2-4*a*c))/2/a; % >0
+v2 = @(t) v27 + a2*t;
+a = 1/2*a2;
+b = v27;
+c = -(cum(30-21)-cum(27-21));
+t30 = t27 + (-b+sqrt(b^2-4*a*c))/(2*a);
 
-a_L = @(t) a1*(t<=t2) + a2*(t>t2);
-v_L = @(t) v0 + a(t)*t;
+x_t = @(t) (t<=t27)*(v0*t + 1/2*a1*t^2) + (t>t27 & t<=t30)*(cum(27-21)+v27*(t-t27)+1/2*a2*(t-t27)^2);
 
-v = @(t) lambda(gamma(el_blues(1)))*[v_L(t);0;0];
-
-ts = linspace(0,100,1000);
-
-% x_L = @(t, x0) v0*t + 1/2*a(t)*t^2;
-
+m = 90; % kg
 F = [
     0;
-    -m*9.81;
+    m*9.81; % Col segno più ha più senso - forza locale di là
     0;
 ];
+n = length(M);
+n_m = 10;
+Phi = modes(:,1:n_m);
 
+Mq = Phi'*Mff*Phi;
+Kq = Phi'*Kff*Phi;
+Cq = Phi'*Cff*Phi;
+
+Mq_inv = Mq\eye(n_m);
+
+A = [
+    zeros(n_m), eye(n_m);
+    -Mq_inv*Kq, -Mq_inv*Cq
+];
+
+Ft = @(t) [
+    zeros(n_m,1);
+    zeros(n_m,1)+(t<=t30)*Mq_inv*Phi'*F_t(F, x_t, t, n, ndof, l, gamma, incidenze)
+];
+odefun = @(t, z) A*z + Ft(t);
+ts = linspace(0,50,1000);
+[ts, zs] = ode45(odefun, ts, zeros(length(A),1));
+
+figure
+hold on
+labels = {};
+for ii=1:n_m
+    plot(ts, zs(:,ii))
+    labels{end+1} = sprintf('Modo %d', ii);
+    legend(labels); 
+end
+
+xs = Phi*zs(:,1:n_m)';
+figure
+plot(ts, xs(idb(n_B,2),:))
+grid on
+for ii=1:length(ts)
+    Fts(:,ii) = F_t(F, x_t, ts(ii), n, ndof, l, gamma, incidenze);
+end
+figure
+plot(ts, Fts(idb(n_B,2),:))
 %% functions
+
 function plot_beam(A, B, color)
     plot([A(1), B(1)], [A(2), B(2)], color, LineWidth=1.5);
 end
-
