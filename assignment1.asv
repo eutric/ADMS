@@ -124,10 +124,10 @@ ylabel('Mode shapes')
 
 % compute FRF
 %assume 
-x_in=.2; % m
+x_in=.; % m
 x_out=.6;
 
-x_in_2 =.2;
+x_in_2 =.2 ;
 x_out_2 =1.2 ;
 
 x_in_3 = .2;
