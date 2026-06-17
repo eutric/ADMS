@@ -214,7 +214,7 @@ FRF_to_xA = FRFs(idb(n_A,1),:);
 FRF_to_yB = FRFs(idb(n_B,2),:);
 
 figure
-subplot(2,1,1) 
+subplot(2,2,1)
 semilogy(fs, abs(FRF_to_xA),'r',LineWidth=1.5)
 hold on
 xline([f_i(1), f_i(2), f_i(3), f_i(4)], 'b')
@@ -222,7 +222,7 @@ xlabel('Frequency Hz');
 ylabel('| |');
 title('Magnitude - Horizontal displacement on node A')
 grid on
-subplot(2,1,2) 
+subplot(2,2,3)
 plot(fs, angle(FRF_to_xA),'r',LineWidth=1.5)
 hold on
 xline([f_i(1), f_i(2), f_i(3), f_i(4)], 'b')
@@ -230,8 +230,7 @@ xlabel('Frequency Hz');
 title('Phase - Horizontal displacement on node A')
 grid on
 
-figure
-subplot(2,1,1) 
+subplot(2,2,2)
 semilogy(fs, abs(FRF_to_yB),'r',LineWidth=1.5)
 hold on
 xline([f_i(1), f_i(2), f_i(3), f_i(4)], 'b')
@@ -239,7 +238,7 @@ xlabel('Frequency Hz');
 ylabel('| |');
 title('Magnitude - Vertical displacement on node B')
 grid on
-subplot(2,1,2) 
+subplot(2,2,4)
 plot(fs, angle(FRF_to_yB),'r',LineWidth=1.5)
 hold on
 xline([f_i(1), f_i(2), f_i(3), f_i(4)], 'b')
