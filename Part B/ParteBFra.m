@@ -144,7 +144,7 @@ for ii = 1:length(res_f)
     fff_exp=max(abs(k*unnormed_mode(ii,:)));
     F = scatteredInterpolant(x, y,k*unnormed_mode(ii,:)','natural'); % Funzione dei spostamenti laser registrati
     % calcolabile nei nodi della FEM
-    F.ExtrapolationMethod = 'linear'; % evita NaN/0 fuori dal convex hull dei punti laser
+    F.ExtrapolationMethod = 'linear';
 
 
     z_LASER = F(nodes.X, nodes.Y);
